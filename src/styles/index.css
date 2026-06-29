@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   ТЕМЫ через CSS-переменные
+   ============================================================ */
+
+@layer base {
+  /* Тёмная тема — применяется когда на <html> стоит класс .dark */
+  html.dark {
+    --bg: 8 6 15;
+    --bg-soft: 15 11 29;
+    --bg-card: 21 16 42;
+    --bg-elevated: 28 22 56;
+    --text: 233 230 255;
+    --text-muted: 155 149 194;
+    --text-dim: 107 102 136;
+    --border: 255 255 255 / 0.10;
+    --border-strong: 255 255 255 / 0.18;
+    --glass-bg: 255 255 255 / 0.03;
+    --glass-bg-strong: 255 255 255 / 0.06;
+    --glass-border: 255 255 255 / 0.10;
+    --scroll-track: 15 11 29;
+    --hover-bg: 255 255 255 / 0.06;
+    --hover-bg-strong: 255 255 255 / 0.10;
+    --divider: 255 255 255 / 0.10;
+    color-scheme: dark;
+  }
+
+  /* Светлая тема — применяется когда на <html> стоит класс .light */
+  html.light {
+    --bg: 245 243 252;
+    --bg-soft: 234 230 246;
+    --bg-card: 255 255 255;
+    --bg-elevated: 255 255 255;
+    --text: 24 18 51;
+    --text-muted: 86 78 122;
+    --text-dim: 138 130 168;
+    --border: 24 18 51 / 0.12;
+    --border-strong: 24 18 51 / 0.22;
+    --glass-bg: 255 255 255 / 0.75;
+    --glass-bg-strong: 255 255 255 / 0.95;
+    --glass-border: 24 18 51 / 0.10;
+    --scroll-track: 230 226 244;
+    --hover-bg: 24 18 51 / 0.05;
+    --hover-bg-strong: 24 18 51 / 0.10;
+    --divider: 24 18 51 / 0.10;
+    color-scheme: light;
+  }
+
+  /* Дефолт если ни один класс не выставлен (на момент SSR / no-JS) */
+  html:not(.light):not(.dark) {
+    --bg: 8 6 15;
+    --bg-soft: 15 11 29;
+    --bg-card: 21 16 42;
+    --bg-elevated: 28 22 56;
+    --text: 233 230 255;
+    --text-muted: 155 149 194;
+    --text-dim: 107 102 136;
+    --border: 255 255 255 / 0.10;
+    --border-strong: 255 255 255 / 0.18;
+    --glass-bg: 255 255 255 / 0.03;
+    --glass-bg-strong: 255 255 255 / 0.06;
+    --glass-border: 255 255 255 / 0.10;
+    --scroll-track: 15 11 29;
+    --hover-bg: 255 255 255 / 0.06;
+    --hover-bg-strong: 255 255 255 / 0.10;
+    --divider: 255 255 255 / 0.10;
+    color-scheme: dark;
+  }
+
+  * { -webkit-tap-highlight-color: transparent; }
+  html, body, #root { height: 100%; }
+
+  /* Базовый фон тела — простой сплошной цвет (адаптируется к теме через переменную) */
+  html, body {
+    background-color: rgb(var(--bg));
+    color: rgb(var(--text));
+  }
+  body {
+    @apply font-sans antialiased;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Декоративный neon glow ТОЛЬКО в тёмной теме (фиксированный псевдо-фон) */
+  html.dark body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(168, 85, 247, 0.18) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(255, 61, 240, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 0% 20%, rgba(34, 211, 238, 0.08) 0%, transparent 50%);
+  }
+  /* Декоративный мягкий пастельный glow в светлой теме */
+  html.light body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(168, 85, 247, 0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(255, 61, 240, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 0% 20%, rgba(34, 211, 238, 0.06) 0%, transparent 60%);
+  }
+
+  ::selection { background: rgba(168, 85, 247, 0.4); color: white; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: rgb(var(--scroll-track)); }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #8b5cf6, #ff3df0);
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #a855f7, #ff5ef5); }
+}
+
+/* ============================================================
+   КОМПОНЕНТЫ
+   ============================================================ */
+
+@layer components {
+  .glass {
+    background-color: rgb(var(--glass-bg));
+    border: 1px solid rgb(var(--glass-border));
+    @apply backdrop-blur-xl;
+  }
+  .glass-strong {
+    background-color: rgb(var(--glass-bg-strong));
+    border: 1px solid rgb(var(--glass-border));
+    @apply backdrop-blur-2xl shadow-glass;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white
+           bg-gradient-to-r from-neon-pink to-neon-purple
+           hover:shadow-neon transition-all duration-300
+           active:scale-95;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-medium
+           text-text transition-all duration-200;
+    background-color: rgb(var(--hover-bg));
+    border: 1px solid rgb(var(--border));
+  }
+  .btn-ghost:hover {
+    background-color: rgb(var(--hover-bg-strong));
+  }
+  .input {
+    @apply w-full rounded-xl px-4 py-3
+           text-text placeholder:text-text-dim
+           focus:outline-none focus:border-neon-purple/60
+           transition-all duration-200;
+    background-color: rgb(var(--hover-bg));
+    border: 1px solid rgb(var(--border));
+  }
+  .input:focus { background-color: rgb(var(--hover-bg-strong)); }
+
+  .chip {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-text-muted;
+    background-color: rgb(var(--hover-bg));
+    border: 1px solid rgb(var(--border));
+  }
+  .chip-active {
+    @apply bg-gradient-to-r from-neon-pink/20 to-neon-purple/20
+           border-neon-purple/40 text-text;
+  }
+  .neon-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-neon-pink via-neon-violet to-neon-cyan;
+  }
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-neon-sm;
+  }
+}
+
+/* ============================================================
+   УТИЛИТЫ
+   ============================================================ */
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .text-shadow { text-shadow: 0 2px 20px rgba(0,0,0,0.6); }
+
+  .border-app { border-color: rgb(var(--border)); }
+  .border-app-strong { border-color: rgb(var(--border-strong)); }
+  .divide-app > * + * { border-top: 1px solid rgb(var(--divider)); }
+  .bg-hover { background-color: rgb(var(--hover-bg)); }
+  .bg-hover-strong { background-color: rgb(var(--hover-bg-strong)); }
+  .hover\:bg-hover:hover { background-color: rgb(var(--hover-bg)); }
+  .hover\:bg-hover-strong:hover { background-color: rgb(var(--hover-bg-strong)); }
+}
