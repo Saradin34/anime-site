@@ -155,11 +155,45 @@ export default function VideoPlayer({
     }
   }, [onTimeUpdate, onEnded])
 
+  // Псевдо-fullscreen (CSS-режим во весь экран) для iOS Safari и старых браузеров,
+  // где обычный Fullscreen API на контейнере не работает.
+  const [pseudoFullscreen, setPseudoFullscreen] = useState(false)
+
   useEffect(() => {
-    const onFs = () => setFullscreen(Boolean(document.fullscreenElement))
+    const onFs = () => {
+      const active = Boolean(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).webkitCurrentFullScreenElement,
+      )
+      setFullscreen(active)
+    }
     document.addEventListener('fullscreenchange', onFs)
-    return () => document.removeEventListener('fullscreenchange', onFs)
+    document.addEventListener('webkitfullscreenchange', onFs as any)
+    return () => {
+      document.removeEventListener('fullscreenchange', onFs)
+      document.removeEventListener('webkitfullscreenchange', onFs as any)
+    }
   }, [])
+
+  // На псевдо-fullscreen блокируем скролл body
+  useEffect(() => {
+    if (pseudoFullscreen) {
+      const prev = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => { document.body.style.overflow = prev }
+    }
+  }, [pseudoFullscreen])
+
+  // Выход из псевдо-fullscreen по Escape
+  useEffect(() => {
+    if (!pseudoFullscreen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPseudoFullscreen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [pseudoFullscreen])
 
   const togglePlay = () => {
     const v = videoRef.current; if (!v) return
@@ -172,11 +206,81 @@ export default function VideoPlayer({
     const v = videoRef.current; if (!v) return
     v.currentTime = Math.max(0, Math.min(v.duration || 0, v.currentTime + sec))
   }
-  const toggleFullscreen = () => {
-    if (!containerRef.current) return
-    if (document.fullscreenElement) document.exitFullscreen()
-    else containerRef.current.requestFullscreen()
+
+  /**
+   * Cross-browser fullscreen с поддержкой iOS Safari и автоповоротом на мобиле.
+   * iOS Safari НЕ поддерживает Fullscreen API на <div> — только на <video> через webkitEnterFullscreen().
+   * Поэтому стратегия:
+   *  1. Пробуем стандартный requestFullscreen на контейнере (Android, Desktop)
+   *  2. Если не получилось — webkitEnterFullscreen на самом video (iOS iPhone)
+   *  3. Если и это не сработало — включаем псевдо-fullscreen (CSS, fixed inset-0)
+   * После fullscreen пробуем заблокировать ориентацию в landscape на телефоне.
+   */
+  const toggleFullscreen = async () => {
+    const isInFs = Boolean(
+      document.fullscreenElement ||
+      (document as any).webkitFullscreenElement ||
+      pseudoFullscreen,
+    )
+
+    if (isInFs) {
+      // Выход
+      try {
+        // Снимаем lock ориентации
+        if (screen.orientation && (screen.orientation as any).unlock) {
+          (screen.orientation as any).unlock()
+        }
+      } catch {}
+      if (document.fullscreenElement && document.exitFullscreen) {
+        await document.exitFullscreen().catch(() => {})
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen()
+      }
+      setPseudoFullscreen(false)
+      return
+    }
+
+    // Вход
+    const container = containerRef.current
+    const video = videoRef.current as any
+    let entered = false
+
+    // 1) Стандартный API на контейнере
+    if (container && container.requestFullscreen) {
+      try {
+        await container.requestFullscreen()
+        entered = true
+      } catch {}
+    } else if (container && (container as any).webkitRequestFullscreen) {
+      try {
+        (container as any).webkitRequestFullscreen()
+        entered = true
+      } catch {}
+    }
+
+    // 2) iOS Safari fallback — fullscreen на самом video
+    if (!entered && video && video.webkitEnterFullscreen) {
+      try {
+        video.webkitEnterFullscreen()
+        entered = true
+      } catch {}
+    }
+
+    // 3) Псевдо-fullscreen через CSS
+    if (!entered) {
+      setPseudoFullscreen(true)
+    }
+
+    // Поворот в landscape только на мобиле и если поддерживается
+    try {
+      const isMobile = window.matchMedia('(max-width: 900px)').matches
+      if (isMobile && screen.orientation && (screen.orientation as any).lock) {
+        await (screen.orientation as any).lock('landscape').catch(() => {})
+      }
+    } catch {}
   }
+
+  const isFullscreenLike = fullscreen || pseudoFullscreen
 
   const showControls = () => {
     setControlsVisible(true)
@@ -209,14 +313,32 @@ export default function VideoPlayer({
       ref={containerRef}
       tabIndex={0}
       onMouseMove={showControls}
+      onTouchStart={showControls}
       onMouseLeave={() => playing && setControlsVisible(false)}
-      className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden group focus:outline-none"
+      className={clsx(
+        'group focus:outline-none bg-black overflow-hidden',
+        pseudoFullscreen
+          // Псевдо-fullscreen: fixed во весь viewport (для iOS Safari и старых браузеров)
+          ? 'fixed inset-0 z-[9999] w-screen h-screen rounded-none'
+          : 'relative w-full aspect-video rounded-2xl',
+      )}
+      style={pseudoFullscreen ? { height: '100dvh' } : undefined}
     >
       <video
         ref={videoRef}
         poster={poster || undefined}
-        className="w-full h-full"
+        className="w-full h-full object-contain"
         playsInline
+        // iOS Safari требует webkit-playsinline атрибут (lowercase!) для inline-плеера
+        // @ts-ignore — нестандартный атрибут
+        webkit-playsinline="true"
+        // x5-video-* — для китайских мобильных браузеров (UC, QQ)
+        // @ts-ignore
+        x5-video-player-type="h5"
+        // @ts-ignore
+        x5-video-player-fullscreen="true"
+        controlsList="nodownload"
+        disablePictureInPicture={false}
         onClick={togglePlay}
       />
 
@@ -370,8 +492,13 @@ export default function VideoPlayer({
             </div>
           )}
 
-          <button onClick={toggleFullscreen} className="hover:text-neon-pink transition p-1" aria-label="Fullscreen">
-            {fullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+          <button
+            onClick={toggleFullscreen}
+            className="hover:text-neon-pink transition p-1"
+            aria-label={isFullscreenLike ? 'Выйти из полноэкранного режима' : 'На весь экран'}
+            title={isFullscreenLike ? 'Выйти (Esc)' : 'На весь экран (F)'}
+          >
+            {isFullscreenLike ? <Minimize size={20} /> : <Maximize size={20} />}
           </button>
         </div>
       </div>

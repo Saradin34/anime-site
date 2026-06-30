@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Tags } from 'lucide-react'
 import { animeApi, posterUrl } from '@/api/anilibria'
 import type { Genre } from '@/types/anime'
+import { useSeo } from '@/hooks/useSeo'
 
 const GENRE_EMOJI: Record<string, string> = {
   'Боевые искусства': '🥋', 'Вампиры': '🧛', 'Гарем': '🌸', 'Демоны': '👹', 'Детектив': '🔍',
@@ -18,6 +19,12 @@ const GENRE_EMOJI: Record<string, string> = {
 export default function GenresPage() {
   const [genres, setGenres] = useState<Genre[]>([])
   const [loading, setLoading] = useState(true)
+
+  useSeo({
+    title: 'Жанры аниме',
+    description: 'Все жанры аниме: экшен, романтика, фэнтези, исекай, комедия, школа и многие другие. Подборки по любимым жанрам.',
+    canonical: '/genres',
+  })
 
   useEffect(() => {
     animeApi.genres()

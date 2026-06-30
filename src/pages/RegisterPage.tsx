@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { UserPlus, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { isFirebaseConfigured } from '@/lib/firebase'
+import { useSeo } from '@/hooks/useSeo'
 
 export default function RegisterPage() {
+  useSeo({ title: 'Регистрация', description: 'Создайте бесплатный аккаунт AnimeFlux', canonical: '/register', noindex: true })
   const navigate = useNavigate()
   const { signUp, loading, error, clearError } = useAuthStore()
   const [name, setName] = useState('')

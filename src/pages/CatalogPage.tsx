@@ -1,6 +1,7 @@
 import { useParams, useSearchParams } from 'react-router-dom'
 import CatalogSection from '@/components/CatalogSection'
 import { Film } from 'lucide-react'
+import { useSeo } from '@/hooks/useSeo'
 
 export default function CatalogPage() {
   const { genre } = useParams()
@@ -12,6 +13,21 @@ export default function CatalogPage() {
     : genre
     ? `Жанр: ${decodeURIComponent(genre)}`
     : 'Каталог аниме'
+
+  useSeo({
+    title: q
+      ? `Поиск аниме «${q}»`
+      : genre
+      ? `Аниме в жанре ${decodeURIComponent(genre)}`
+      : 'Каталог всех аниме',
+    description: q
+      ? `Результаты поиска аниме по запросу «${q}». Тысячи тайтлов в HD-качестве с русской озвучкой.`
+      : genre
+      ? `Подборка аниме в жанре «${decodeURIComponent(genre)}» — лучшие тайтлы с озвучкой и субтитрами в HD.`
+      : 'Полный каталог аниме на AnimeFlux. Фильтры по году, жанрам. Тысячи тайтлов в HD.',
+    canonical: q ? '/catalog' : genre ? `/genres/${genre}` : '/catalog',
+    noindex: !!q, // страницы поиска не индексируем
+  })
 
   return (
     <div className="max-w-[1500px] mx-auto px-4 lg:px-8">

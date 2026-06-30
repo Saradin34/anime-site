@@ -1,3 +1,13 @@
+#!/usr/bin/env node
+// Хелпер для быстрой настройки .env.local из firebaseConfig объекта.
+//
+// Использование:
+//   1) Скопируйте объект firebaseConfig из консоли Firebase
+//   2) Запустите: node scripts/setup-firebase.mjs
+//   3) Вставьте объект (можно с TODO-комментариями), нажмите Ctrl+D (Linux/Mac) или Ctrl+Z+Enter (Windows)
+//
+// Скрипт распарсит конфиг и создаст .env.local с правильными переменными.
+
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'

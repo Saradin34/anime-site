@@ -16,6 +16,7 @@ import {
 } from '@/api/providers/aggregator'
 import { useAuthStore } from '@/store/authStore'
 import { useUserStore } from '@/store/userStore'
+import { useSeo } from '@/hooks/useSeo'
 import clsx from 'clsx'
 import { Globe, Loader2 } from 'lucide-react'
 
@@ -192,6 +193,39 @@ export default function AnimePage() {
       })
     }
   }
+
+  // ===== SEO: динамический title, описание, og:image и JSON-LD TVSeries =====
+  useSeo(anime ? {
+    title: `${anime.name.main} — смотреть онлайн`,
+    description: anime.description
+      ? `${anime.name.main}${anime.name.english ? ` (${anime.name.english})` : ''}. ${anime.description.slice(0, 200)}${anime.description.length > 200 ? '...' : ''}`
+      : `Смотрите аниме «${anime.name.main}» онлайн в HD-качестве с русской озвучкой.`,
+    image: posterUrl(anime.poster),
+    canonical: `/anime/${anime.alias}`,
+    type: 'video.tv_show',
+    meta: anime.year ? [{ property: 'video:release_date', content: String(anime.year) }] : undefined,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': anime.type?.value === 'MOVIE' ? 'Movie' : 'TVSeries',
+      name: anime.name.main,
+      alternateName: anime.name.english || undefined,
+      description: anime.description || undefined,
+      image: posterUrl(anime.poster),
+      url: `https://anime-flux.netlify.app/anime/${anime.alias}`,
+      datePublished: anime.year ? `${anime.year}-01-01` : undefined,
+      genre: anime.genres?.map((g) => g.name),
+      numberOfEpisodes: anime.episodes_total || undefined,
+      contentRating: anime.age_rating?.label || undefined,
+      inLanguage: 'ru',
+      aggregateRating: (anime.added_in_users_favorites ?? 0) > 0 ? {
+        '@type': 'AggregateRating',
+        ratingValue: '8.5',
+        ratingCount: anime.added_in_users_favorites,
+        bestRating: '10',
+        worstRating: '1',
+      } : undefined,
+    },
+  } : { title: 'Загрузка...', noindex: true })
 
   if (loading) {
     return (

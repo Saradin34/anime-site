@@ -5,8 +5,15 @@ import CatalogSection from '@/components/CatalogSection'
 import { animeApi } from '@/api/anilibria'
 import type { ReleaseShort } from '@/types/anime'
 import { Sparkles, AlertCircle, Flame } from 'lucide-react'
+import { useSeo } from '@/hooks/useSeo'
 
 export default function HomePage() {
+  useSeo({
+    title: 'Смотреть аниме онлайн в HD',
+    description: 'AnimeFlux — тысячи аниме онлайн бесплатно: новинки сезона, онгоинги, классика. HD 1080p, русская озвучка от AniLibria, английские sub/dub от HiAnime. Без рекламы.',
+    canonical: '/',
+    type: 'website',
+  })
   const [hero, setHero] = useState<ReleaseShort[]>([])
   const [updates, setUpdates] = useState<ReleaseShort[]>([])
   const [loading, setLoading] = useState(true)

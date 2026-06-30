@@ -1,3 +1,7 @@
+#!/usr/bin/env node
+// Диагностика: показывает, какие .env-файлы Vite найдёт и что в них.
+// Запуск: npm run check:env
+
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -5,6 +9,7 @@ import { fileURLToPath } from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 
+// Vite читает эти файлы в указанном порядке (последний выигрывает)
 const FILES = [
   '.env',
   '.env.local',

@@ -3,8 +3,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { LogIn, Mail, Lock, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { isFirebaseConfigured } from '@/lib/firebase'
+import { useSeo } from '@/hooks/useSeo'
 
 export default function LoginPage() {
+  useSeo({ title: 'Вход', description: 'Войдите в свой аккаунт AnimeFlux', canonical: '/login', noindex: true })
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as any)?.from || '/'

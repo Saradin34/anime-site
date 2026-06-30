@@ -3,9 +3,15 @@ import { Link } from 'react-router-dom'
 import { Trophy, Star, Play } from 'lucide-react'
 import { animeApi, posterUrl } from '@/api/anilibria'
 import type { ReleaseShort } from '@/types/anime'
+import { useSeo } from '@/hooks/useSeo'
 import clsx from 'clsx'
 
 export default function TopPage() {
+  useSeo({
+    title: 'Топ-100 лучших аниме',
+    description: 'Рейтинг лучших аниме всех времён по версии пользователей. 100 культовых тайтлов в HD-качестве с русской озвучкой.',
+    canonical: '/top',
+  })
   const [items, setItems] = useState<ReleaseShort[]>([])
   const [loading, setLoading] = useState(true)
 

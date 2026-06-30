@@ -3,11 +3,18 @@ import { Calendar } from 'lucide-react'
 import AnimeCard from '@/components/AnimeCard'
 import { animeApi } from '@/api/anilibria'
 import type { ScheduleItem } from '@/types/anime'
+import { useSeo } from '@/hooks/useSeo'
 import clsx from 'clsx'
 
 const DAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
 
 export default function SchedulePage() {
+  useSeo({
+    title: 'Расписание выхода аниме',
+    description: 'Когда выходят новые серии аниме-онгоингов. Расписание по дням недели — не пропустите свежий эпизод.',
+    canonical: '/schedule',
+  })
+
   const [schedule, setSchedule] = useState<ScheduleItem[]>([])
   const [loading, setLoading] = useState(true)
   const [activeDay, setActiveDay] = useState<number>(() => {
