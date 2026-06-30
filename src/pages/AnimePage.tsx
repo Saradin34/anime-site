@@ -466,11 +466,15 @@ export default function AnimePage() {
               </div>
             </div>
 
-            <div className="glass rounded-2xl p-3 max-h-[700px] flex flex-col">
-              <h3 className="font-semibold p-2 mb-2 flex items-center gap-2">
+            <details
+              className="glass rounded-2xl p-3 lg:max-h-[700px] lg:flex lg:flex-col group/eps"
+              open={typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches}
+            >
+              <summary className="font-semibold p-2 mb-2 flex items-center gap-2 cursor-pointer list-none lg:cursor-default select-none">
                 <Play size={16} /> Серии ({episodes.length})
-              </h3>
-              <div className="flex-1 overflow-y-auto space-y-1 pr-1">
+                <ChevronDown size={16} className="ml-auto lg:hidden transition-transform group-open/eps:rotate-180" />
+              </summary>
+              <div className="lg:flex-1 max-h-[60vh] lg:max-h-none overflow-y-auto space-y-1 pr-1">
                 {episodes.map((ep) => (
                   <button
                     key={ep.id}
@@ -502,7 +506,7 @@ export default function AnimePage() {
                   </button>
                 ))}
               </div>
-            </div>
+            </details>
           </div>
         ) : (
           <div className="glass rounded-2xl p-8 text-center mb-12">

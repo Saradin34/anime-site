@@ -58,6 +58,10 @@ export default function VideoPlayer({
   const [controlsVisible, setControlsVisible] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const hideTimer = useRef<number | null>(null)
+  // Индикатор двойного тапа: 'left' (−10s) / 'right' (+10s) / null
+  const [seekFlash, setSeekFlash] = useState<'left' | 'right' | null>(null)
+  const lastTapRef = useRef<{ time: number; x: number } | null>(null)
+  const flashTimer = useRef<number | null>(null)
 
   // При смене источника сбрасываем quality на первое доступное
   useEffect(() => {
@@ -339,8 +343,49 @@ export default function VideoPlayer({
         x5-video-player-fullscreen="true"
         controlsList="nodownload"
         disablePictureInPicture={false}
-        onClick={togglePlay}
+        onClick={(e) => {
+          // Детекция двойного тапа: если клик в течение 300мс на той же стороне → перемотка
+          const now = Date.now()
+          const rect = e.currentTarget.getBoundingClientRect()
+          const x = e.clientX - rect.left
+          const half = rect.width / 2
+          const last = lastTapRef.current
+          if (last && now - last.time < 300) {
+            // Двойной тап — определяем сторону
+            const dir: 'left' | 'right' = x < half ? 'left' : 'right'
+            skip(dir === 'left' ? -10 : 10)
+            setSeekFlash(dir)
+            if (flashTimer.current) window.clearTimeout(flashTimer.current)
+            flashTimer.current = window.setTimeout(() => setSeekFlash(null), 500)
+            lastTapRef.current = null
+            return
+          }
+          lastTapRef.current = { time: now, x }
+          // Одиночный клик: пауза/плей через 250мс (если за это время не было второго клика)
+          window.setTimeout(() => {
+            if (lastTapRef.current && Date.now() - lastTapRef.current.time >= 250) {
+              togglePlay()
+              lastTapRef.current = null
+            }
+          }, 260)
+        }}
       />
+
+      {/* Индикатор перемотки при двойном тапе */}
+      {seekFlash && (
+        <div
+          className={clsx(
+            'absolute top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center',
+            'w-24 h-24 rounded-full bg-white/15 backdrop-blur-md animate-fade-in',
+            seekFlash === 'left' ? 'left-[15%]' : 'right-[15%]',
+          )}
+        >
+          <div className="text-white text-center">
+            <div className="text-2xl">{seekFlash === 'left' ? '⏪' : '⏩'}</div>
+            <div className="text-xs font-semibold mt-1">10 сек</div>
+          </div>
+        </div>
+      )}
 
       {/* Loading */}
       {loading && (
@@ -387,31 +432,42 @@ export default function VideoPlayer({
           <input type="range" min={0} max={duration || 0} step={0.1} value={current} onChange={(e) => seek(Number(e.target.value))} className="absolute inset-0 w-full opacity-0 cursor-pointer" aria-label="Прогресс" />
         </div>
 
-        <div className="flex items-center gap-2 text-white">
-          <button onClick={togglePlay} className="hover:text-neon-pink transition p-1" aria-label="Play/Pause">
+        <div className="flex items-center gap-1 sm:gap-2 text-white">
+          <button onClick={togglePlay} className="hover:text-neon-pink transition p-1.5 sm:p-1" aria-label="Play/Pause">
             {playing ? <Pause size={22} /> : <Play size={22} fill="currentColor" />}
           </button>
+          {/* Prev/Next — скрыты на узких экранах (есть кнопки рядом с плеером) */}
           {onPrev && (
-            <button onClick={onPrev} className="hover:text-neon-pink transition p-1" aria-label="Предыдущая">
+            <button onClick={onPrev} className="hidden sm:inline-flex hover:text-neon-pink transition p-1" aria-label="Предыдущая">
               <SkipBack size={20} />
             </button>
           )}
-          <button onClick={() => skip(-10)} className="hover:text-neon-pink transition px-1 text-xs font-semibold opacity-70 hover:opacity-100">-10s</button>
-          <button onClick={() => skip(10)} className="hover:text-neon-pink transition px-1 text-xs font-semibold opacity-70 hover:opacity-100">+10s</button>
+          <button onClick={() => skip(-10)} className="hidden sm:inline-flex hover:text-neon-pink transition px-1 text-xs font-semibold opacity-70 hover:opacity-100">-10s</button>
+          <button onClick={() => skip(10)} className="hidden sm:inline-flex hover:text-neon-pink transition px-1 text-xs font-semibold opacity-70 hover:opacity-100">+10s</button>
           {onNext && (
-            <button onClick={onNext} className="hover:text-neon-pink transition p-1" aria-label="Следующая">
+            <button onClick={onNext} className="hidden sm:inline-flex hover:text-neon-pink transition p-1" aria-label="Следующая">
               <SkipForward size={20} />
             </button>
           )}
 
+          {/* Громкость — на мобиле только иконка, без слайдера */}
           <div className="flex items-center gap-2 group/vol">
-            <button onClick={toggleMute} className="hover:text-neon-pink transition p-1" aria-label="Mute">
+            <button onClick={toggleMute} className="hover:text-neon-pink transition p-1.5 sm:p-1" aria-label="Mute">
               {muted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
             </button>
-            <input type="range" min={0} max={1} step={0.05} value={muted ? 0 : volume} onChange={(e) => setVol(Number(e.target.value))} className="w-0 group-hover/vol:w-20 transition-all accent-neon-pink" aria-label="Громкость" />
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={muted ? 0 : volume}
+              onChange={(e) => setVol(Number(e.target.value))}
+              className="hidden sm:block w-0 group-hover/vol:w-20 transition-all accent-neon-pink"
+              aria-label="Громкость"
+            />
           </div>
 
-          <div className="text-xs text-white/70 ml-1 font-mono">
+          <div className="text-[10px] sm:text-xs text-white/70 ml-0.5 sm:ml-1 font-mono whitespace-nowrap">
             {fmtTime(current)} / {fmtTime(duration)}
           </div>
 
@@ -471,7 +527,8 @@ export default function VideoPlayer({
                 aria-label="Качество"
               >
                 <Settings size={18} />
-                <span>{quality.label}</span>
+                <span className="hidden xs:inline">{quality.label}</span>
+                <span className="xs:hidden">{quality.label.replace('p', '')}</span>
               </button>
               {showSettings && (
                 <div className="absolute bottom-full right-0 mb-2 glass-strong rounded-xl p-1 min-w-[100px]">
