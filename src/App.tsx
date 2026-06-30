@@ -1,23 +1,35 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Layout from '@/components/layout/Layout'
-import HomePage from '@/pages/HomePage'
-import CatalogPage from '@/pages/CatalogPage'
-import AnimePage from '@/pages/AnimePage'
-import TopPage from '@/pages/TopPage'
-import GenresPage from '@/pages/GenresPage'
-import SchedulePage from '@/pages/SchedulePage'
-import LoginPage from '@/pages/LoginPage'
-import RegisterPage from '@/pages/RegisterPage'
-import ProfilePage from '@/pages/ProfilePage'
-import FavoritesPage from '@/pages/FavoritesPage'
-import HistoryPage from '@/pages/HistoryPage'
-import ListsPage from '@/pages/ListsPage'
-import NotFoundPage from '@/pages/NotFoundPage'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
 import { useProfileStore } from '@/store/profileStore'
+
+// Главная — НЕ lazy: грузится сразу, ничего не ждём (LCP-критично)
+import HomePage from '@/pages/HomePage'
+
+// Остальные страницы — lazy: каждая отдельный чанк
+const CatalogPage = lazy(() => import('@/pages/CatalogPage'))
+const AnimePage = lazy(() => import('@/pages/AnimePage'))
+const TopPage = lazy(() => import('@/pages/TopPage'))
+const GenresPage = lazy(() => import('@/pages/GenresPage'))
+const SchedulePage = lazy(() => import('@/pages/SchedulePage'))
+const LoginPage = lazy(() => import('@/pages/LoginPage'))
+const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'))
+const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'))
+const HistoryPage = lazy(() => import('@/pages/HistoryPage'))
+const ListsPage = lazy(() => import('@/pages/ListsPage'))
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
+
+function PageFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="w-10 h-10 rounded-full border-2 border-neon-purple border-t-transparent animate-spin" />
+    </div>
+  )
+}
 
 export default function App() {
   const init = useAuthStore((s) => s.init)
@@ -26,12 +38,9 @@ export default function App() {
   const getProfile = useProfileStore((s) => s.getProfile)
   const updateProfile = useProfileStore((s) => s.updateProfile)
 
-  // Инициализация авторизации и темы
   useEffect(() => { init(); initTheme() }, [init, initTheme])
 
-  // Автосинхронизация Google-данных (фото + имя) в локальный профиль.
-  // Срабатывает только если в локальном профиле этих полей ещё нет —
-  // не перетирает кастомные значения пользователя.
+  // Автосинхронизация Google-данных в локальный профиль
   useEffect(() => {
     if (!user) return
     const p = getProfile(user.uid)
@@ -45,24 +54,24 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/catalog" element={<CatalogPage />} />
-        <Route path="/top" element={<TopPage />} />
-        <Route path="/genres" element={<GenresPage />} />
-        <Route path="/genres/:genre" element={<CatalogPage />} />
-        <Route path="/schedule" element={<SchedulePage />} />
-        <Route path="/anime/:code" element={<AnimePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/catalog" element={<Suspense fallback={<PageFallback />}><CatalogPage /></Suspense>} />
+        <Route path="/top" element={<Suspense fallback={<PageFallback />}><TopPage /></Suspense>} />
+        <Route path="/genres" element={<Suspense fallback={<PageFallback />}><GenresPage /></Suspense>} />
+        <Route path="/genres/:genre" element={<Suspense fallback={<PageFallback />}><CatalogPage /></Suspense>} />
+        <Route path="/schedule" element={<Suspense fallback={<PageFallback />}><SchedulePage /></Suspense>} />
+        <Route path="/anime/:code" element={<Suspense fallback={<PageFallback />}><AnimePage /></Suspense>} />
+        <Route path="/login" element={<Suspense fallback={<PageFallback />}><LoginPage /></Suspense>} />
+        <Route path="/register" element={<Suspense fallback={<PageFallback />}><RegisterPage /></Suspense>} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/favorites" element={<FavoritesPage />} />
-          <Route path="/history" element={<HistoryPage />} />
-          <Route path="/lists" element={<ListsPage />} />
-          <Route path="/lists/:list" element={<ListsPage />} />
+          <Route path="/profile" element={<Suspense fallback={<PageFallback />}><ProfilePage /></Suspense>} />
+          <Route path="/favorites" element={<Suspense fallback={<PageFallback />}><FavoritesPage /></Suspense>} />
+          <Route path="/history" element={<Suspense fallback={<PageFallback />}><HistoryPage /></Suspense>} />
+          <Route path="/lists" element={<Suspense fallback={<PageFallback />}><ListsPage /></Suspense>} />
+          <Route path="/lists/:list" element={<Suspense fallback={<PageFallback />}><ListsPage /></Suspense>} />
         </Route>
 
-        <Route path="*" element={<NotFoundPage />} />
+        <Route path="*" element={<Suspense fallback={<PageFallback />}><NotFoundPage /></Suspense>} />
       </Route>
     </Routes>
   )

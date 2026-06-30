@@ -1,10 +1,6 @@
-// Умная картинка с поддержкой:
-// - <picture> webp + jpg fallback (выбираем оптимальный по поддержке браузера)
-// - blur-up плейсхолдер через крошечный thumbnail (~800 байт)
-// - lazy / eager loading
-// - кроссфейд при загрузке оригинала
-// - без потери качества: object-fit cover + image-rendering для retina
-// - БЕЗ crossOrigin — чтобы не ломать загрузку с CDN которые не отдают CORS-заголовки
+// Лёгкая картинка с поддержкой webp+jpg fallback, lazy/eager loading
+// и опциональным blur-up плейсхолдером (только для hero, не для каждой карточки).
+// Оптимизировано для мобильных: минимум DOM, без crossOrigin.
 
 import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
@@ -26,9 +22,8 @@ interface Props {
   poster?: PosterLike | string | null
   alt: string
   className?: string
-  /** 'hero' (full HD, eager) / 'card' (medium, lazy) / 'thumb' (small) */
+  /** 'hero' (full HD, eager, blur-up) / 'card' (medium, lazy) / 'thumb' (small) */
   priority?: 'hero' | 'card' | 'thumb'
-  /** object-fit, default 'cover' */
   fit?: 'cover' | 'contain'
 }
 
@@ -39,33 +34,31 @@ function abs(path?: string | null): string | null {
   return path
 }
 
-/**
- * Возвращает оптимальные URL для разных размеров.
- * Согласно структуре AniLibria:
- *  - src / optimized.src — оригинал в полном разрешении (для hero)
- *  - preview / optimized.preview — то же что src (резерв)
- *  - thumbnail / optimized.thumbnail — крошечный для blur-up
- */
-function resolveSources(poster?: PosterLike | string | null) {
-  if (!poster) return { webp: null, jpg: null, blur: null }
+function resolveSources(poster: PosterLike | string | null | undefined, priority: Props['priority']) {
+  if (!poster) return { webp: null, jpg: null, blur: null, useFull: false }
   if (typeof poster === 'string') {
-    return { webp: null, jpg: abs(poster), blur: null }
+    return { webp: null, jpg: abs(poster), blur: null, useFull: false }
   }
-  const webp = abs(poster.optimized?.src || poster.optimized?.preview)
-  const jpg = abs(poster.src || poster.preview)
-  // самый лёгкий thumbnail для blur-up
+  // Для карточек используем thumbnail (~50КБ) вместо полного постера (~150КБ)
+  // Для hero — полный размер
+  const useFull = priority === 'hero'
+  const webp = useFull
+    ? abs(poster.optimized?.src || poster.optimized?.preview || poster.optimized?.thumbnail)
+    : abs(poster.optimized?.preview || poster.optimized?.thumbnail || poster.optimized?.src)
+  const jpg = useFull
+    ? abs(poster.src || poster.preview || poster.thumbnail)
+    : abs(poster.preview || poster.thumbnail || poster.src)
   const blur = abs(poster.optimized?.thumbnail || poster.thumbnail)
-  return { webp, jpg, blur }
+  return { webp, jpg, blur, useFull }
 }
 
 export default function SmartImage({
   poster, alt, className, priority = 'card', fit = 'cover',
 }: Props) {
-  const { webp, jpg, blur } = resolveSources(poster)
+  const { webp, jpg, blur, useFull } = resolveSources(poster, priority)
   const [loaded, setLoaded] = useState(false)
   const imgRef = useRef<HTMLImageElement | null>(null)
 
-  // Уже закэширована браузером? (важно при back-навигации)
   useEffect(() => {
     if (imgRef.current?.complete) setLoaded(true)
   }, [webp, jpg])
@@ -79,13 +72,14 @@ export default function SmartImage({
   }
 
   const isEager = priority === 'hero'
+  // Blur-up плейсхолдер только для hero — на карточках он создаёт лишние DOM-узлы
+  const showBlur = isEager && blur && !loaded
 
   return (
     <div className={clsx('relative overflow-hidden bg-bg-card', className)}>
-      {/* LQIP — крошечная картинка в фоне, размытая */}
-      {blur && !loaded && (
+      {showBlur && (
         <img
-          src={blur}
+          src={blur!}
           alt=""
           aria-hidden
           className="absolute inset-0 w-full h-full"
@@ -93,7 +87,6 @@ export default function SmartImage({
             objectFit: fit,
             filter: 'blur(24px)',
             transform: 'scale(1.1)',
-            imageRendering: 'auto',
           }}
         />
       )}
@@ -105,25 +98,21 @@ export default function SmartImage({
           alt={alt}
           loading={isEager ? 'eager' : 'lazy'}
           decoding={isEager ? 'sync' : 'async'}
-          // ВАЖНО: НЕ передаём crossOrigin — AniLibria CDN не отдаёт Access-Control-Allow-Origin.
-          // React 18 не знает camelCase fetchPriority — ставим lowercase атрибут через ref.
           ref={(el) => {
             if (el) {
               if (isEager) el.setAttribute('fetchpriority', 'high')
-              // На всякий случай убираем атрибут если react/что-то его добавил
               if (el.hasAttribute('crossorigin')) el.removeAttribute('crossorigin')
             }
             imgRef.current = el
           }}
           onLoad={() => setLoaded(true)}
           className={clsx(
-            'relative w-full h-full transition-opacity duration-500',
-            loaded ? 'opacity-100' : 'opacity-0'
+            'relative w-full h-full',
+            // Кроссфейд только если есть blur-up, иначе картинка появляется сразу
+            showBlur ? 'transition-opacity duration-500' : '',
+            loaded || !showBlur ? 'opacity-100' : 'opacity-0',
           )}
-          style={{
-            objectFit: fit,
-            imageRendering: 'auto',
-          }}
+          style={{ objectFit: fit }}
         />
       </picture>
     </div>

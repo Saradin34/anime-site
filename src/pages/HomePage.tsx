@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import HeroSlider from '@/components/HeroSlider'
 import HorizontalRail from '@/components/HorizontalRail'
-import CatalogSection from '@/components/CatalogSection'
+import LazySection from '@/components/LazySection'
 import { animeApi } from '@/api/anilibria'
 import type { ReleaseShort } from '@/types/anime'
 import { Sparkles, AlertCircle, Flame } from 'lucide-react'
 import { useSeo } from '@/hooks/useSeo'
+
+// Каталог — самая тяжёлая секция, грузим только при скролле
+const CatalogSection = lazy(() => import('@/components/CatalogSection'))
 
 export default function HomePage() {
   useSeo({
@@ -92,7 +95,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      <CatalogSection hideTitle />
+      <LazySection minHeight="600px" rootMargin="400px">
+        <Suspense fallback={<div className="h-[600px] glass rounded-2xl animate-pulse" />}>
+          <CatalogSection hideTitle />
+        </Suspense>
+      </LazySection>
     </div>
   )
 }

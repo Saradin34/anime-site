@@ -7,8 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     {
-      // Подключаем Aniwatch endpoints прямо в Vite dev-сервере,
-      // чтобы в локальной разработке /api/aniwatch/* работало без vercel dev.
+      // Подключаем Aniwatch endpoints прямо в Vite dev-сервере
       name: 'aniwatch-dev-api',
       configureServer(server) {
         server.middlewares.use(aniwatchDevMiddleware())
@@ -25,16 +24,33 @@ export default defineConfig({
     host: true,
   },
   build: {
+    target: 'es2020',
+    cssMinify: true,
+    minify: 'esbuild',
+    sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ['react', 'react-dom', 'react-router-dom'],
-          firebase: ['firebase/app', 'firebase/auth'],
-          hls: ['hls.js'],
-          icons: ['lucide-react'],
+        // Умное разделение: тяжёлые библиотеки в свои чанки,
+        // которые грузятся только когда нужны
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('hls.js')) return 'hls'
+            if (id.includes('firebase')) return 'firebase'
+            if (id.includes('react-dom') || id.includes('react-router')) return 'react-vendor'
+            if (id.includes('zustand')) return 'state'
+            if (id.includes('lucide-react')) return 'icons'
+            // Остальные мелкие — в один общий vendor
+            return 'vendor'
+          }
         },
       },
     },
     chunkSizeWarningLimit: 800,
+  },
+  // Префетч: при бездействии браузер заранее подгружает чанки роутов
+  experimental: {
+    renderBuiltUrl(filename) {
+      return '/' + filename
+    },
   },
 })

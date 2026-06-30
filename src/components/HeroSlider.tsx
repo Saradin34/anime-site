@@ -15,16 +15,23 @@ export default function HeroSlider({ items }: { items: ReleaseShort[] }) {
     return () => clearInterval(t)
   }, [slides.length])
 
-  // Превзагрузка следующего слайда
+  // Префетч следующего слайда — но только когда браузер idle (не блокируем основной поток)
   useEffect(() => {
     const next = slides[(index + 1) % slides.length]
     if (!next?.poster) return
     const url =
-      (next.poster.optimized?.src && `https://anilibria.top${next.poster.optimized.src}`) ||
+      (next.poster.optimized?.preview && `https://anilibria.top${next.poster.optimized.preview}`) ||
       (next.poster.src && `https://anilibria.top${next.poster.src}`)
     if (!url) return
-    const img = new Image()
-    img.src = url
+    const ric = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 1000))
+    const handle = ric(() => {
+      const img = new Image()
+      img.src = url
+    })
+    return () => {
+      const cic = (window as any).cancelIdleCallback || clearTimeout
+      try { cic(handle) } catch {}
+    }
   }, [index, slides])
 
   if (slides.length === 0) {

@@ -33,8 +33,23 @@ export default function Navbar() {
   const effectiveName = profile?.displayName || user?.displayName || user?.email?.split('@')[0] || ''
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll)
+    // Throttle через rAF: scroll-обработчик не дёргает React каждый кадр
+    let ticking = false
+    let lastScrolled = window.scrollY > 20
+    setScrolled(lastScrolled)
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        const next = window.scrollY > 20
+        if (next !== lastScrolled) {
+          lastScrolled = next
+          setScrolled(next)
+        }
+        ticking = false
+      })
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
@@ -55,7 +70,7 @@ export default function Navbar() {
         className={clsx(
           'fixed top-0 inset-x-0 z-40 transition-all duration-300',
           scrolled
-            ? 'bg-bg/80 backdrop-blur-xl border-b border-app shadow-lg'
+            ? 'bg-bg/95 md:bg-bg/80 md:backdrop-blur-xl border-b border-app shadow-lg'
             : 'bg-transparent'
         )}
       >
@@ -182,7 +197,7 @@ export default function Navbar() {
         </div>
 
         {mobileOpen && (
-          <div className="lg:hidden border-t border-app bg-bg/95 backdrop-blur-xl animate-fade-in">
+          <div className="lg:hidden border-t border-app bg-bg animate-fade-in">
             <nav className="px-4 py-4 flex flex-col gap-1">
               {NAV.map((item) => (
                 <NavLink

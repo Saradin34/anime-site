@@ -118,7 +118,8 @@ export default function CatalogSection({ initialGenre, title = 'Каталог �
       <div className="grid lg:grid-cols-[260px_1fr] gap-6">
         {/* Sidebar */}
         <aside className={clsx('lg:block', filtersOpen ? 'block' : 'hidden')}>
-          <div className="glass rounded-2xl p-5 lg:sticky lg:top-24 max-h-[calc(100vh-7rem)] overflow-y-auto no-scrollbar">
+          {/* На мобиле без backdrop-blur (тяжёлый эффект для GPU при скролле) */}
+          <div className="bg-bg-card/60 lg:glass border border-app rounded-2xl p-5 lg:sticky lg:top-24 max-h-[calc(100vh-7rem)] overflow-y-auto no-scrollbar">
             <div className="flex items-center justify-between mb-4 lg:hidden">
               <h3 className="font-semibold">Фильтры</h3>
               <button onClick={() => setFiltersOpen(false)} className="text-text-muted hover:text-text">
