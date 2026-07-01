@@ -1,4 +1,15 @@
-import { Outlet } from 'react-router-dom';
-import { Layout as BaseLayout } from '@/components/Layout';
-export default function Layout(){ return <BaseLayout />; }
-export { Outlet };
+import { Outlet, ScrollRestoration } from 'react-router-dom'
+import Navbar from './Navbar'
+import Footer from './Footer'
+
+export default function Layout() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-1 pt-20">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  )
+}

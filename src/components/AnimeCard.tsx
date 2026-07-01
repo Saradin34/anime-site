@@ -1,25 +1,100 @@
-import { Heart, Play, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import type { Anime } from '../types/anime';
+import { Link } from 'react-router-dom'
+import { Play, Star } from 'lucide-react'
+import SmartImage from './SmartImage'
+import type { ReleaseShort } from '@/types/anime'
+import clsx from 'clsx'
 
-type Props = { anime: Anime; favorite: boolean; onFavorite: (id: string) => void };
-export function AnimeCard({ anime, favorite, onFavorite }: Props) {
-  return <article className="anime-card">
-    <Link className="poster-link" to={`/anime/${anime.source}/${anime.id}`}>
-      <img src={anime.poster} alt={anime.title} loading="lazy" />
-      <div className="poster-glow" />
-      <span className="source-pill">{anime.source}</span>
-      <span className="play-pill"><Play size={16} /> Смотреть</span>
-    </Link>
-    <div className="card-body">
-      <div className="card-topline"><span>{anime.year || '—'}</span><span>{anime.type || 'TV'}</span>{anime.rating && <span><Star size={14} /> {anime.rating}</span>}</div>
-      <Link to={`/anime/${anime.source}/${anime.id}`} className="card-title">{anime.title}</Link>
-      <p>{anime.description.slice(0, 120)}{anime.description.length > 120 ? '…' : ''}</p>
-      <div className="tags">{anime.genres.slice(0, 3).map((g) => <span key={g}>{g}</span>)}</div>
-      <div className="episode-strip">
-        {(anime.episodes.length ? anime.episodes : Array.from({ length: Math.min(anime.episodesCount || 1, 4) }, (_, i) => ({ number: i + 1 }))).slice(0,4).map((ep: any) => <Link key={ep.id || ep.number} to={`/anime/${anime.source}/${anime.id}?episode=${ep.number}`}>Серия {ep.number || 1}</Link>)}
+interface Props {
+  anime: ReleaseShort
+  size?: 'sm' | 'md' | 'lg'
+  showInfo?: boolean
+}
+
+export default function AnimeCard({ anime, size = 'md', showInfo = true }: Props) {
+  const totalEps = anime.episodes_total ?? null
+  const ongoing = anime.is_ongoing
+  const favorites = anime.added_in_users_favorites ?? 0
+
+  return (
+    <Link
+      to={`/anime/${anime.alias}`}
+      className={clsx(
+        'group block relative rounded-2xl overflow-hidden card-hover',
+        'bg-bg-card border border-app',
+        size === 'sm' && 'w-[160px]',
+        size === 'lg' && 'w-full'
+      )}
+    >
+      <div className="relative aspect-[2/3] overflow-hidden">
+        <SmartImage
+          poster={anime.poster}
+          alt={anime.name.main}
+          priority="card"
+          className="w-full h-full transition-transform duration-500 group-hover:scale-110"
+        />
+        {/* Тёмный градиент для читаемости badge-ов поверх постера (в любой теме) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-90 pointer-events-none" />
+
+        {ongoing && (
+          <div className="absolute top-2 left-2 chip backdrop-blur-md bg-black/40 text-[10px] text-neon-cyan border-neon-cyan/30">
+            ● Онгоинг
+          </div>
+        )}
+
+        {favorites > 0 && (
+          <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-black/50 backdrop-blur-md text-[10px] text-neon-pink font-semibold">
+            <Star size={10} fill="currentColor" /> {formatCount(favorites)}
+          </div>
+        )}
+
+        <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="w-14 h-14 rounded-full bg-gradient-neon flex items-center justify-center shadow-neon transform scale-90 group-hover:scale-100 transition-transform">
+            <Play size={22} className="text-white ml-1" fill="white" />
+          </div>
+        </div>
+
+        {totalEps && (
+          <div className="absolute bottom-2 right-2 chip backdrop-blur-md bg-black/50 text-[10px] text-white border-app">
+            {totalEps} эп.
+          </div>
+        )}
+        {anime.age_rating?.label && (
+          <div className="absolute bottom-2 left-2 chip backdrop-blur-md bg-black/50 text-[10px] text-white border-app">
+            {anime.age_rating.label}
+          </div>
+        )}
       </div>
-      <button className={`fav-btn ${favorite ? 'active' : ''}`} onClick={() => onFavorite(anime.id)}><Heart size={18} fill={favorite ? 'currentColor' : 'none'} /> {favorite ? 'В избранном' : 'В избранное'}</button>
-    </div>
-  </article>;
+
+      {showInfo && (
+        <div className="p-3">
+          <h3 className="font-semibold text-sm line-clamp-2 leading-tight group-hover:text-neon-pink transition-colors">
+            {anime.name.main}
+          </h3>
+          {anime.name.english && (
+            <p className="text-xs text-text-dim line-clamp-1 mt-0.5">{anime.name.english}</p>
+          )}
+          <div className="flex items-center gap-2 mt-2 text-[11px] text-text-muted">
+            {anime.year && <span>{anime.year}</span>}
+            {anime.type?.description && (
+              <>
+                <span className="w-1 h-1 rounded-full bg-text-dim" />
+                <span>{anime.type.description}</span>
+              </>
+            )}
+            {anime.genres?.[0]?.name && (
+              <>
+                <span className="w-1 h-1 rounded-full bg-text-dim" />
+                <span className="truncate">{anime.genres[0].name}</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </Link>
+  )
+}
+
+function formatCount(n: number) {
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'k'
+  return String(n)
 }

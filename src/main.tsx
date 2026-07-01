@@ -1,16 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { Layout } from './components/Layout';
-import { Home } from './pages/Home';
-import { Catalog } from './pages/Catalog';
-import { AnimeDetails } from './pages/AnimeDetails';
-import { Login } from './pages/Login';
-import { Favorites } from './pages/Favorites';
-import { About } from './pages/About';
-import './styles.css';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App'
+import './styles/index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode><AuthProvider><BrowserRouter><Routes><Route element={<Layout/>}><Route path="/" element={<Home/>}/><Route path="/catalog" element={<Catalog/>}/><Route path="/anime/:source/:id" element={<AnimeDetails/>}/><Route path="/login" element={<Login/>}/><Route path="/favorites" element={<Favorites/>}/><Route path="/about" element={<About/>}/></Route></Routes></BrowserRouter></AuthProvider></React.StrictMode>
-);
+  <React.StrictMode>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>,
+)
+
+// Регистрация Service Worker — только в production и только когда страница загрузилась
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.warn('SW registration failed:', err)
+    })
+  })
+}
