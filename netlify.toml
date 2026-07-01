@@ -1,54 +1,27 @@
-# Конфигурация Netlify для AnimeFlux
-# Документация: https://docs.netlify.com/configure-builds/file-based-configuration/
-
 [build]
   command = "npm run build"
   publish = "dist"
-  functions = "netlify/functions"
 
-[build.environment]
-  # Node 20 нужен для актуальных версий зависимостей (firebase, vite, aniwatch)
-  NODE_VERSION = "20"
-
-# Aniwatch / HiAnime API — все запросы /api/aniwatch/<endpoint> идут в одну функцию
 [[redirects]]
-  from = "/api/aniwatch/*"
-  to = "/.netlify/functions/aniwatch/:splat"
+  from = "/api/anilibria-v3/*"
+  to = "https://api.anilibria.tv/v3/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
+[[redirects]]
+  from = "/api/aniliberty/*"
+  to = "https://aniliberty.top/api/v1/:splat"
   status = 200
   force = true
 
-# SPA fallback — всё остальное отдаём index.html (роутинг на стороне React Router)
+[[redirects]]
+  from = "/api/jikan/*"
+  to = "https://api.jikan.moe/v4/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# Кэширование статики
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/favicon.svg"
-  [headers.values]
-    Cache-Control = "public, max-age=86400"
-
-# Безопасность
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "SAMEORIGIN"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-
-# Настройки functions
-[functions]
-  # Бандл через esbuild — быстрее и проще для TypeScript
-  node_bundler = "esbuild"
-  # Включаем сам пакет aniwatch + его зависимости
-  external_node_modules = ["aniwatch"]
-
-[functions."aniwatch"]
-  # Увеличенный таймаут для скрапинга
-  timeout = 26

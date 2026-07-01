@@ -1,4 +1,4 @@
-// Клиент для актуального AniLiberty API v1
+ // Клиент для актуального AniLiberty API v1
 // Документация: https://anilibria.top/api/docs/v1
 // Старый api.anilibria.tv/v3 отключён 7 августа 2025.
 
