@@ -126,3 +126,92 @@
     max-height: 42vh;
   }
 }
+
+/* Hard fix for player page layouts with a right episodes/sidebar panel.
+   The problem on the screenshot is that episode items are rendered outside the panel
+   because the panel/list does not clip and scroll its content. */
+:is(
+  .episodes-panel,
+  .episode-panel,
+  .series-panel,
+  .playlist-panel,
+  .player-sidebar,
+  .watch-sidebar,
+  aside:has(.episode-card),
+  aside:has(.episode-item),
+  aside:has([class*="episode" i]),
+  aside:has([class*="series" i])
+) {
+  position: sticky;
+  top: 86px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 110px);
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden !important;
+  contain: layout paint;
+}
+
+:is(
+  .episodes-panel,
+  .episode-panel,
+  .series-panel,
+  .playlist-panel,
+  .player-sidebar,
+  .watch-sidebar,
+  aside:has(.episode-card),
+  aside:has(.episode-item),
+  aside:has([class*="episode" i]),
+  aside:has([class*="series" i])
+) :is(
+  ul,
+  ol,
+  .episodes-list,
+  .episode-list,
+  .series-list,
+  .playlist-list,
+  .episodes-scroll,
+  .episode-scroll,
+  .scroll-area,
+  [class*="list" i],
+  [class*="scroll" i]
+) {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain;
+}
+
+:is(
+  .episode-card,
+  .episode-item,
+  .series-item,
+  .playlist-item,
+  [class*="episode" i],
+  [class*="series" i]
+) {
+  max-width: 100%;
+}
+
+@media (max-width: 980px) {
+  :is(
+    .episodes-panel,
+    .episode-panel,
+    .series-panel,
+    .playlist-panel,
+    .player-sidebar,
+    .watch-sidebar,
+    aside:has(.episode-card),
+    aside:has(.episode-item),
+    aside:has([class*="episode" i]),
+    aside:has([class*="series" i])
+  ) {
+    position: relative;
+    top: auto;
+    max-height: 420px;
+  }
+}
