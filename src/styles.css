@@ -215,3 +215,298 @@
     max-height: 420px;
   }
 }
+
+/* ===== Episode modal/sidebar fix v2 =====
+   Use these classes on the modal/page:
+   <div class="watch-layout">
+     <div class="watch-main">player...</div>
+     <aside class="episodes-modal">...</aside>
+   </div>
+   The rules also cover common existing class names. */
+.watch-layout,
+.player-layout,
+.anime-watch-layout,
+.watch-page,
+.player-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 22px;
+  align-items: start;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: clamp(12px, 3vw, 32px);
+}
+
+.watch-main,
+.player-main,
+.video-column,
+.player-column {
+  min-width: 0;
+}
+
+.episodes-modal,
+.episodes-panel,
+.episodes-sidebar,
+.series-modal,
+.series-panel,
+.series-sidebar,
+.playlist-modal,
+.playlist-panel,
+.playlist-sidebar,
+.player-sidebar,
+.watch-sidebar,
+[role="dialog"] .episodes,
+[role="dialog"] [class*="episode"],
+[role="dialog"] [class*="series"],
+[role="dialog"] aside,
+.watch-layout > aside,
+.player-layout > aside,
+.anime-watch-layout > aside {
+  width: 100%;
+  max-width: 320px;
+  min-width: 0;
+  max-height: calc(100dvh - 96px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+  border-radius: 18px;
+  contain: layout paint;
+}
+
+.episodes-modal__header,
+.episodes-header,
+.series-header,
+.playlist-header,
+.player-sidebar__header,
+.watch-sidebar__header,
+.episodes-modal > h2,
+.episodes-modal > h3,
+.episodes-panel > h2,
+.episodes-panel > h3,
+.episodes-sidebar > h2,
+.episodes-sidebar > h3 {
+  flex: 0 0 auto;
+}
+
+.episodes-modal__list,
+.episodes-list,
+.episode-list,
+.series-list,
+.playlist-list,
+.episodes-scroll,
+.series-scroll,
+.playlist-scroll,
+.player-sidebar__list,
+.watch-sidebar__list,
+.episodes-modal ul,
+.episodes-panel ul,
+.episodes-sidebar ul,
+.series-modal ul,
+.series-panel ul,
+.series-sidebar ul,
+.playlist-modal ul,
+.playlist-panel ul,
+.playlist-sidebar ul,
+.player-sidebar ul,
+.watch-sidebar ul,
+[role="dialog"] aside ul,
+[role="dialog"] aside ol,
+[role="dialog"] aside > div:last-child,
+.watch-layout > aside > div:last-child,
+.player-layout > aside > div:last-child,
+.anime-watch-layout > aside > div:last-child {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding-right: 4px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(168,85,247,.7) rgba(255,255,255,.06);
+}
+
+.episodes-modal__list::-webkit-scrollbar,
+.episodes-list::-webkit-scrollbar,
+.episode-list::-webkit-scrollbar,
+.series-list::-webkit-scrollbar,
+.playlist-list::-webkit-scrollbar,
+.player-sidebar__list::-webkit-scrollbar,
+.watch-sidebar__list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.episodes-modal__list::-webkit-scrollbar-thumb,
+.episodes-list::-webkit-scrollbar-thumb,
+.episode-list::-webkit-scrollbar-thumb,
+.series-list::-webkit-scrollbar-thumb,
+.playlist-list::-webkit-scrollbar-thumb,
+.player-sidebar__list::-webkit-scrollbar-thumb,
+.watch-sidebar__list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--pink), var(--violet));
+  border-radius: 999px;
+}
+
+.episode-card,
+.episode-item,
+.series-card,
+.series-item,
+.playlist-card,
+.playlist-item,
+.episodes-list > *,
+.episode-list > *,
+.series-list > *,
+.playlist-list > * {
+  max-width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.episode-card img,
+.episode-item img,
+.series-card img,
+.series-item img,
+.playlist-card img,
+.playlist-item img,
+.episodes-list img,
+.episode-list img,
+.series-list img,
+.playlist-list img {
+  flex: 0 0 auto;
+  max-width: 88px;
+  object-fit: cover;
+}
+
+.episode-card *,
+.episode-item *,
+.series-card *,
+.series-item *,
+.playlist-card *,
+.playlist-item * {
+  min-width: 0;
+}
+
+.episode-card p,
+.episode-item p,
+.series-card p,
+.series-item p,
+.playlist-card p,
+.playlist-item p,
+.episode-card span,
+.episode-item span,
+.series-card span,
+.series-item span,
+.playlist-card span,
+.playlist-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 981px) {
+  .episodes-modal,
+  .episodes-panel,
+  .episodes-sidebar,
+  .series-modal,
+  .series-panel,
+  .series-sidebar,
+  .playlist-modal,
+  .playlist-panel,
+  .playlist-sidebar,
+  .player-sidebar,
+  .watch-sidebar,
+  .watch-layout > aside,
+  .player-layout > aside,
+  .anime-watch-layout > aside {
+    position: sticky;
+    top: 82px;
+  }
+}
+
+@media (max-width: 980px) {
+  .watch-layout,
+  .player-layout,
+  .anime-watch-layout,
+  .watch-page,
+  .player-page {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding-inline: 12px;
+  }
+
+  .episodes-modal,
+  .episodes-panel,
+  .episodes-sidebar,
+  .series-modal,
+  .series-panel,
+  .series-sidebar,
+  .playlist-modal,
+  .playlist-panel,
+  .playlist-sidebar,
+  .player-sidebar,
+  .watch-sidebar,
+  [role="dialog"] aside,
+  .watch-layout > aside,
+  .player-layout > aside,
+  .anime-watch-layout > aside {
+    position: relative;
+    top: auto;
+    max-width: none;
+    max-height: 46dvh;
+    border-radius: 16px;
+  }
+
+  .episodes-modal__list,
+  .episodes-list,
+  .episode-list,
+  .series-list,
+  .playlist-list,
+  .player-sidebar__list,
+  .watch-sidebar__list {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(220px, 76vw);
+    gap: 10px;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding-bottom: 8px;
+    scroll-snap-type: x proximity;
+  }
+
+  .episodes-modal__list > *,
+  .episodes-list > *,
+  .episode-list > *,
+  .series-list > *,
+  .playlist-list > * {
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .episodes-modal,
+  .episodes-panel,
+  .episodes-sidebar,
+  .series-modal,
+  .series-panel,
+  .series-sidebar,
+  .playlist-modal,
+  .playlist-panel,
+  .playlist-sidebar,
+  .player-sidebar,
+  .watch-sidebar,
+  [role="dialog"] aside,
+  .watch-layout > aside,
+  .player-layout > aside,
+  .anime-watch-layout > aside {
+    max-height: 38dvh;
+    padding: 12px;
+  }
+
+  .episodes-modal__list,
+  .episodes-list,
+  .episode-list,
+  .series-list,
+  .playlist-list,
+  .player-sidebar__list,
+  .watch-sidebar__list {
+    grid-auto-columns: minmax(190px, 82vw);
+  }
+}
