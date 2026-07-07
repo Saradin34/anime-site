@@ -1,0 +1,3 @@
+# Fallback на случай если netlify.toml будет проигнорирован
+/api/aniwatch/*   /.netlify/functions/aniwatch/:splat   200
+/*                /index.html                            200
