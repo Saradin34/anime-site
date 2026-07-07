@@ -1,54 +1,99 @@
-# Конфигурация Netlify для AnimeFlux
-# Документация: https://docs.netlify.com/configure-builds/file-based-configuration/
-
 [build]
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
 
 [build.environment]
-  # Node 20 нужен для актуальных версий зависимостей (firebase, vite, aniwatch)
   NODE_VERSION = "20"
 
-# Aniwatch / HiAnime API — все запросы /api/aniwatch/<endpoint> идут в одну функцию
+# HiAnime API
 [[redirects]]
   from = "/api/aniwatch/*"
   to = "/.netlify/functions/aniwatch/:splat"
   status = 200
   force = true
 
-# SPA fallback — всё остальное отдаём index.html (роутинг на стороне React Router)
+# Динамический sitemap для аниме — генерируется функцией
+[[redirects]]
+  from = "/sitemap-anime.xml"
+  to = "/.netlify/functions/sitemap-anime"
+  status = 200
+  force = true
+
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Кэширование статики
+# ===== Заголовки кеширования =====
+# Ассеты с хешами — навсегда
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Иконки — сутки
 [[headers]]
   for = "/favicon.svg"
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# Безопасность
+[[headers]]
+  for = "/apple-touch-icon.png"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/icon-192.png"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/icon-512.png"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/og-image.png"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# Sitemap и robots — час (чтобы обновления быстро подхватывались)
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/sitemap-index.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+# ===== Безопасность =====
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    X-DNS-Prefetch-Control = "on"
 
-# Настройки functions
 [functions]
-  # Бандл через esbuild — быстрее и проще для TypeScript
   node_bundler = "esbuild"
-  # Включаем сам пакет aniwatch + его зависимости
   external_node_modules = ["aniwatch"]
 
-[functions."aniwatch"]
-  # Увеличенный таймаут для скрапинга
+[functions.aniwatch]
   timeout = 26
+
+[functions.sitemap-anime]
+  timeout = 20

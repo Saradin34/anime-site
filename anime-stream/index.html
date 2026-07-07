@@ -1,73 +1,127 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru-RU">
   <head>
     <meta charset="UTF-8" />
+    <base href="/" />
+
+    <!-- Иконки — несколько размеров для надёжного определения браузером и поисковиком -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/favicon.svg" color="#ff3df0" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Viewport: viewport-fit для iPhone notch, user-scalable=no для удобства видео -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#08060f" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f5f3fc" media="(prefers-color-scheme: light)" />
 
-    <!-- iOS PWA-режим (полный экран) -->
+    <!-- PWA -->
+    <meta name="application-name" content="AnimeFlux" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="AnimeFlux" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-TileColor" content="#08060f" />
+    <meta name="msapplication-TileImage" content="/icon-192.png" />
 
-    <!-- ===== БАЗОВЫЕ SEO ===== -->
-    <title>AnimeFlux — смотреть аниме онлайн в HD бесплатно с русской озвучкой</title>
-    <meta name="description" content="AnimeFlux — тысячи аниме онлайн бесплатно: новинки, онгоинги, классика. HD-качество (1080p), русская озвучка от AniLibria, английские sub/dub от HiAnime. Без рекламы." />
-    <meta name="keywords" content="аниме онлайн, смотреть аниме, anime онлайн, аниме hd, аниме бесплатно, новинки аниме, онгоинги, anilibria, hianime, anime stream, аниме на русском, аниме с озвучкой" />
+    <!-- ===== ОСНОВНОЕ SEO ===== -->
+    <title>AnimeFlux — смотреть аниме онлайн бесплатно в HD с русской озвучкой</title>
+    <meta name="description" content="AnimeFlux — бесплатный онлайн-кинотеатр аниме в HD (720p, 1080p) с профессиональной русской озвучкой и субтитрами. Новинки сезона, онгоинги, культовая классика: сёнэн, романтика, фэнтези, исекай, экшен. Без рекламы, с плеером на любом устройстве." />
+    <meta name="keywords" content="аниме онлайн, смотреть аниме, аниме бесплатно, аниме в HD, аниме 1080p, аниме с русской озвучкой, аниме на русском, новинки аниме, онгоинги 2026, аниме без рекламы, аниме сёнэн, аниме исекай, романтика аниме, фэнтези аниме, экшен аниме, AniLibria, HiAnime, каталог аниме, топ аниме, расписание аниме" />
     <meta name="author" content="AnimeFlux" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-    <meta name="googlebot" content="index, follow" />
+    <meta name="publisher" content="AnimeFlux" />
+    <meta name="copyright" content="AnimeFlux" />
+    <meta name="rating" content="general" />
+    <meta name="distribution" content="global" />
+    <meta name="revisit-after" content="1 days" />
+    <meta name="language" content="Russian" />
+    <meta name="content-language" content="ru-RU" />
+    <meta http-equiv="content-language" content="ru-RU" />
+
+    <!-- Инструкции поисковикам -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large" />
     <meta name="yandex" content="index, follow" />
+    <meta name="bingbot" content="index, follow" />
+
     <link rel="canonical" href="https://anime-flux.netlify.app/" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-    <!-- ===== Open Graph (Facebook, VK, Telegram, Discord) ===== -->
+    <!-- Гео и целевая аудитория для Яндекса -->
+    <meta name="geo.region" content="RU" />
+    <meta name="geo.placename" content="Россия" />
+
+    <!-- ===== Open Graph ===== -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="AnimeFlux" />
-    <meta property="og:title" content="AnimeFlux — смотреть аниме онлайн в HD бесплатно" />
-    <meta property="og:description" content="Тысячи аниме онлайн с русской озвучкой. HD-качество, без рекламы, удобный плеер на любом устройстве." />
+    <meta property="og:title" content="AnimeFlux — смотреть аниме онлайн бесплатно в HD" />
+    <meta property="og:description" content="Тысячи аниме онлайн с русской озвучкой в HD-качестве. Новинки сезона, онгоинги, классика. Бесплатно, без рекламы, удобный плеер на телефоне и ПК." />
     <meta property="og:url" content="https://anime-flux.netlify.app/" />
     <meta property="og:image" content="https://anime-flux.netlify.app/og-image.png" />
+    <meta property="og:image:secure_url" content="https://anime-flux.netlify.app/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="AnimeFlux — сервис для просмотра аниме" />
+    <meta property="og:image:alt" content="AnimeFlux — онлайн-кинотеатр аниме в HD" />
     <meta property="og:locale" content="ru_RU" />
+    <meta property="og:locale:alternate" content="en_US" />
 
     <!-- ===== Twitter Card ===== -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="AnimeFlux — смотреть аниме онлайн" />
-    <meta name="twitter:description" content="Тысячи аниме в HD-качестве с русской озвучкой. Бесплатно и без рекламы." />
+    <meta name="twitter:site" content="@animeflux" />
+    <meta name="twitter:creator" content="@animeflux" />
+    <meta name="twitter:title" content="AnimeFlux — смотреть аниме онлайн в HD" />
+    <meta name="twitter:description" content="Тысячи аниме в HD-качестве с русской озвучкой. Бесплатно, без рекламы." />
     <meta name="twitter:image" content="https://anime-flux.netlify.app/og-image.png" />
+    <meta name="twitter:image:alt" content="AnimeFlux — онлайн-кинотеатр аниме" />
 
-    <!-- ===== Performance ===== -->
+    <!-- ===== Верификации ===== -->
+    <!-- Google Search Console: замените content на ваш код после подтверждения -->
+    <!-- <meta name="google-site-verification" content="ВАШ_КОД" /> -->
+    <!-- Yandex Webmaster: <meta name="yandex-verification" content="ВАШ_КОД" /> -->
+
+    <!-- ===== Производительность: preconnect/dns-prefetch ===== -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://anilibria.top" />
     <link rel="preconnect" href="https://api.anilibria.app" />
     <link rel="dns-prefetch" href="https://cache.libria.fun" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 
-    <!-- ===== JSON-LD: WebSite + Organization + SearchAction ===== -->
+    <!-- ===== JSON-LD: полный граф Organization + WebSite + WebApplication ===== -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@graph": [
         {
+          "@type": "Organization",
+          "@id": "https://anime-flux.netlify.app/#organization",
+          "name": "AnimeFlux",
+          "alternateName": ["AnimeFlux онлайн", "аниме флукс"],
+          "url": "https://anime-flux.netlify.app/",
+          "logo": {
+            "@type": "ImageObject",
+            "@id": "https://anime-flux.netlify.app/#logo",
+            "url": "https://anime-flux.netlify.app/icon-512.png",
+            "contentUrl": "https://anime-flux.netlify.app/icon-512.png",
+            "width": 512,
+            "height": 512,
+            "caption": "AnimeFlux"
+          },
+          "image": { "@id": "https://anime-flux.netlify.app/#logo" },
+          "sameAs": []
+        },
+        {
           "@type": "WebSite",
           "@id": "https://anime-flux.netlify.app/#website",
           "url": "https://anime-flux.netlify.app/",
           "name": "AnimeFlux",
-          "description": "Сервис для просмотра аниме онлайн в HD с русской озвучкой",
+          "description": "Онлайн-кинотеатр аниме: тысячи тайтлов в HD с русской озвучкой и субтитрами",
           "inLanguage": "ru-RU",
-          "publisher": { "@id": "https://anime-flux.netlify.app/#org" },
+          "publisher": { "@id": "https://anime-flux.netlify.app/#organization" },
           "potentialAction": {
             "@type": "SearchAction",
             "target": {
@@ -78,17 +132,36 @@
           }
         },
         {
-          "@type": "Organization",
-          "@id": "https://anime-flux.netlify.app/#org",
+          "@type": "WebApplication",
+          "@id": "https://anime-flux.netlify.app/#webapp",
           "name": "AnimeFlux",
           "url": "https://anime-flux.netlify.app/",
-          "logo": "https://anime-flux.netlify.app/favicon.svg"
+          "description": "Веб-приложение для просмотра аниме онлайн в HD-качестве. Каталог, плеер, списки, история просмотра, комментарии.",
+          "applicationCategory": "EntertainmentApplication",
+          "operatingSystem": "Any",
+          "browserRequirements": "Requires JavaScript. Requires HTML5 video.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "RUB"
+          },
+          "featureList": [
+            "Онлайн-просмотр аниме в HD (720p и 1080p)",
+            "Русская озвучка от AniLibria",
+            "Субтитры на английском",
+            "Каталог с фильтрами по жанрам и году",
+            "Расписание выхода новых серий онгоингов",
+            "Личные списки: Смотрю, Запланировано, Просмотрено, Брошено, Избранное",
+            "Оценки и рекомендации",
+            "Уведомления о новых сериях"
+          ],
+          "screenshot": "https://anime-flux.netlify.app/og-image.png"
         }
       ]
     }
     </script>
 
-    <!-- Применяем тему ДО рендера React, чтобы избежать вспышки -->
+    <!-- Применяем тему ДО рендера React -->
     <script>
       (function() {
         try {
@@ -112,13 +185,44 @@
   </head>
   <body>
     <div id="root">
-      <!-- Fallback для краулеров, которые не рендерят JS -->
-      <noscript>
-        <div style="padding:40px;text-align:center;font-family:sans-serif;color:#e9e6ff;background:#08060f;min-height:100vh">
-          <h1>AnimeFlux — смотреть аниме онлайн</h1>
-          <p>Для работы сайта требуется JavaScript. Пожалуйста, включите его в настройках браузера.</p>
-        </div>
-      </noscript>
+      <!-- SEO-контент для краулеров которые не рендерят JS (Googlebot умеет, но подстраховка). -->
+      <!-- Скрыт стилями сразу после гидратации React. -->
+      <div id="seo-fallback" style="max-width:900px;margin:0 auto;padding:32px 20px;font-family:system-ui,sans-serif;color:#e9e6ff;background:#08060f;min-height:100vh">
+        <header>
+          <h1 style="font-size:28px;margin:0 0 12px">AnimeFlux — смотреть аниме онлайн бесплатно в HD</h1>
+          <p style="opacity:.85;line-height:1.6;margin:0 0 20px">
+            AnimeFlux — это бесплатный <strong>онлайн-кинотеатр аниме</strong>: тысячи тайтлов с русской озвучкой и субтитрами,
+            HD-качество (720p и 1080p), удобный плеер на телефоне и компьютере. Смотрите свежие
+            <strong>онгоинги 2026</strong>, культовую классику и новинки сезона без рекламы.
+          </p>
+        </header>
+        <section>
+          <h2 style="font-size:20px;margin:20px 0 10px">Разделы сайта</h2>
+          <ul style="line-height:1.9">
+            <li><a href="/" style="color:#ff3df0">Главная — новинки аниме</a></li>
+            <li><a href="/catalog" style="color:#ff3df0">Каталог аниме</a> — фильтры по году и жанрам</li>
+            <li><a href="/top" style="color:#ff3df0">Топ-100 лучших аниме</a></li>
+            <li><a href="/genres" style="color:#ff3df0">Жанры аниме</a>: экшен, романтика, фэнтези, исекай, сёнэн, комедия</li>
+            <li><a href="/schedule" style="color:#ff3df0">Расписание выхода новых серий</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2 style="font-size:20px;margin:20px 0 10px">Что мы предлагаем</h2>
+          <p style="line-height:1.7;opacity:.85">
+            На <strong>AnimeFlux</strong> собраны популярные аниме-сериалы, полнометражные фильмы и OVA.
+            Смотрите бесплатно в высоком качестве с озвучкой от студии AniLibria или английскими субтитрами.
+            Ведите личные списки просмотра, ставьте оценки, оставляйте комментарии.
+          </p>
+          <p style="line-height:1.7;opacity:.85">
+            Для полноценной работы сайта нужен браузер с поддержкой JavaScript и HTML5-видео.
+          </p>
+        </section>
+        <noscript>
+          <p style="margin-top:20px;padding:16px;background:#331;border-radius:8px">
+            ⚠️ Для работы плеера включите JavaScript в настройках браузера.
+          </p>
+        </noscript>
+      </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

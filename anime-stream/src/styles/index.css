@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* SEO-fallback: виден для краулеров/до-JS, скрывается когда React примонтирует своё дерево */
+#seo-fallback { display: block; }
+body:has(#root > *:not(#seo-fallback)) #seo-fallback { display: none !important; }
+
 /* ============================================================
    ТЕМЫ через CSS-переменные
    ============================================================ */

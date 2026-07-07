@@ -21,9 +21,14 @@ export default function GenresPage() {
   const [loading, setLoading] = useState(true)
 
   useSeo({
-    title: 'Жанры аниме',
-    description: 'Все жанры аниме: экшен, романтика, фэнтези, исекай, комедия, школа и многие другие. Подборки по любимым жанрам.',
+    title: 'Жанры аниме — все категории и подборки',
+    description: 'Все жанры аниме на AnimeFlux: экшен, романтика, фэнтези, исекай, комедия, сёнэн, школа, приключения, драма, мистика. Найдите свой любимый жанр и смотрите тысячи тайтлов в HD с русской озвучкой онлайн бесплатно.',
     canonical: '/genres',
+    keywords: 'жанры аниме, категории аниме, аниме экшен, аниме романтика, аниме фэнтези, аниме исекай, аниме комедия, аниме сёнэн, аниме школа, подборки аниме',
+    breadcrumbs: [
+      { name: 'Главная', url: '/' },
+      { name: 'Жанры', url: '/genres' },
+    ],
   })
 
   useEffect(() => {
@@ -59,7 +64,7 @@ export default function GenresPage() {
               className="relative h-32 rounded-2xl overflow-hidden group border border-app hover:border-neon-purple/40 transition"
             >
               {g.image ? (
-                <img src={posterUrl(g.image)} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 group-hover:scale-110 transition duration-500" />
+                <img src={posterUrl(g.image)} alt={`Аниме в жанре ${g.name}`} loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 group-hover:scale-110 transition duration-500" />
               ) : null}
               <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-bg/20" />
               <div className="relative h-full flex flex-col justify-between p-4">

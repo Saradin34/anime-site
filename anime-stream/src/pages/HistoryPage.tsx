@@ -46,7 +46,7 @@ export default function HistoryPage() {
               className="glass rounded-2xl p-3 flex items-center gap-4 hover:bg-hover transition group"
             >
               <Link to={`/anime/${e.alias}`} className="flex items-center gap-4 flex-1 min-w-0">
-                <img src={e.poster} alt="" className="w-14 h-20 rounded-lg object-cover shrink-0" />
+                <img src={e.poster} alt={`Постер ${e.title}`} loading="lazy" className="w-14 h-20 rounded-lg object-cover shrink-0" />
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold group-hover:text-neon-pink transition truncate">{e.title}</h3>
                   <p className="text-sm text-text-muted">Серия {e.episode}</p>

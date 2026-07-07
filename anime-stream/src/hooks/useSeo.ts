@@ -1,5 +1,5 @@
 // Хук для динамического управления meta-тегами (title, description, og:*, canonical, JSON-LD).
-// Используется на конкретных страницах вместо react-helmet-async (чтобы не тащить зависимость).
+// Используется на конкретных страницах вместо react-helmet-async.
 
 import { useEffect } from 'react'
 
@@ -10,21 +10,18 @@ const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`
 export interface SeoOptions {
   title?: string
   description?: string
-  /** Полный URL картинки для соцсетей */
   image?: string
-  /** Относительный путь (например /catalog) или абсолютный URL */
   canonical?: string
-  /** og:type: website | article | video.tv_show | video.episode и т.д. */
   type?: 'website' | 'article' | 'video.tv_show' | 'video.episode' | 'video.movie'
-  /** Дополнительные теги вроде video:release_date */
   meta?: { property?: string; name?: string; content: string }[]
-  /** JSON-LD структурированные данные */
-  jsonLd?: object | null
-  /** Если страница не должна индексироваться */
+  jsonLd?: object | object[] | null
+  /** Хлебные крошки для JSON-LD BreadcrumbList */
+  breadcrumbs?: { name: string; url: string }[]
   noindex?: boolean
+  /** Ключевые слова конкретной страницы */
+  keywords?: string
 }
 
-/** Установить/обновить meta-тег по атрибуту (name или property) */
 function setMeta(attr: 'name' | 'property', key: string, content: string) {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`)
   if (!el) {
@@ -47,49 +44,57 @@ function setLink(rel: string, href: string) {
   el.setAttribute('href', href)
 }
 
-function setJsonLd(data: object | null) {
-  // Удаляем предыдущий динамический JSON-LD (но не статический в index.html — у него нет data-dynamic)
+function setJsonLd(data: object | object[] | null) {
   document
     .querySelectorAll<HTMLScriptElement>('script[type="application/ld+json"][data-dynamic="1"]')
     .forEach((el) => el.remove())
 
   if (data) {
-    const script = document.createElement('script')
-    script.type = 'application/ld+json'
-    script.dataset.dynamic = '1'
-    script.textContent = JSON.stringify(data)
-    document.head.appendChild(script)
+    const items = Array.isArray(data) ? data : [data]
+    for (const item of items) {
+      const script = document.createElement('script')
+      script.type = 'application/ld+json'
+      script.dataset.dynamic = '1'
+      script.textContent = JSON.stringify(item)
+      document.head.appendChild(script)
+    }
   }
 }
 
 export function useSeo(opts: SeoOptions) {
   useEffect(() => {
+    // Title: если задан кастомный, добавляем бренд через тире
     const title = opts.title
       ? `${opts.title} — ${SITE_NAME}`
-      : `${SITE_NAME} — смотреть аниме онлайн в HD бесплатно`
+      : `${SITE_NAME} — смотреть аниме онлайн бесплатно в HD с русской озвучкой`
     document.title = title
 
     const description = opts.description ||
-      'AnimeFlux — тысячи аниме онлайн бесплатно: новинки, онгоинги, классика. HD-качество, русская озвучка.'
+      'AnimeFlux — бесплатный онлайн-кинотеатр аниме в HD (720p, 1080p) с русской озвучкой. Новинки, онгоинги, классика: сёнэн, романтика, фэнтези, исекай, экшен.'
 
     const image = opts.image || DEFAULT_IMAGE
     const canonical = opts.canonical
       ? (opts.canonical.startsWith('http') ? opts.canonical : SITE_URL + opts.canonical)
-      : SITE_URL + window.location.pathname
+      : SITE_URL + (typeof window !== 'undefined' ? window.location.pathname : '')
 
     setMeta('name', 'description', description)
     setLink('canonical', canonical)
 
+    if (opts.keywords) {
+      setMeta('name', 'keywords', opts.keywords)
+    }
+
     // robots
     setMeta('name', 'robots', opts.noindex
       ? 'noindex, nofollow'
-      : 'index, follow, max-image-preview:large, max-snippet:-1',
+      : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
     )
 
     // Open Graph
     setMeta('property', 'og:title', opts.title || SITE_NAME)
     setMeta('property', 'og:description', description)
     setMeta('property', 'og:image', image)
+    setMeta('property', 'og:image:secure_url', image)
     setMeta('property', 'og:url', canonical)
     setMeta('property', 'og:type', opts.type || 'website')
     setMeta('property', 'og:site_name', SITE_NAME)
@@ -100,8 +105,8 @@ export function useSeo(opts: SeoOptions) {
     setMeta('name', 'twitter:title', opts.title || SITE_NAME)
     setMeta('name', 'twitter:description', description)
     setMeta('name', 'twitter:image', image)
+    setMeta('name', 'twitter:site', '@animeflux')
 
-    // Дополнительные теги
     if (opts.meta) {
       for (const m of opts.meta) {
         if (m.property) setMeta('property', m.property, m.content)
@@ -109,7 +114,28 @@ export function useSeo(opts: SeoOptions) {
       }
     }
 
-    // JSON-LD
-    setJsonLd(opts.jsonLd || null)
-  }, [opts.title, opts.description, opts.image, opts.canonical, opts.type, opts.noindex, JSON.stringify(opts.meta), JSON.stringify(opts.jsonLd)])
+    // JSON-LD: пользовательский + автоматические breadcrumbs если заданы
+    const jsonLdItems: object[] = []
+    if (opts.jsonLd) {
+      const items = Array.isArray(opts.jsonLd) ? opts.jsonLd : [opts.jsonLd]
+      jsonLdItems.push(...items)
+    }
+    if (opts.breadcrumbs && opts.breadcrumbs.length > 0) {
+      jsonLdItems.push({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: opts.breadcrumbs.map((b, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: b.name,
+          item: b.url.startsWith('http') ? b.url : SITE_URL + b.url,
+        })),
+      })
+    }
+    setJsonLd(jsonLdItems.length > 0 ? jsonLdItems : null)
+  }, [
+    opts.title, opts.description, opts.image, opts.canonical, opts.type,
+    opts.noindex, opts.keywords,
+    JSON.stringify(opts.meta), JSON.stringify(opts.jsonLd), JSON.stringify(opts.breadcrumbs),
+  ])
 }

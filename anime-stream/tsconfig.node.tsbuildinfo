@@ -1,1 +1,1 @@
-{"root":["./vite.config.ts","./dev-server.ts","./netlify/functions/aniwatch.ts"],"version":"5.9.3"}
+{"root":["./vite.config.ts","./dev-server.ts","./netlify/functions/aniwatch.ts","./netlify/functions/sitemap-anime.ts"],"version":"5.9.3"}

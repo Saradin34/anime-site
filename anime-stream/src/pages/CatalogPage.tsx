@@ -14,19 +14,34 @@ export default function CatalogPage() {
     ? `Жанр: ${decodeURIComponent(genre)}`
     : 'Каталог аниме'
 
+  const decodedGenre = genre ? decodeURIComponent(genre) : ''
+
   useSeo({
     title: q
       ? `Поиск аниме «${q}»`
-      : genre
-      ? `Аниме в жанре ${decodeURIComponent(genre)}`
-      : 'Каталог всех аниме',
+      : decodedGenre
+      ? `Аниме в жанре ${decodedGenre} — смотреть онлайн`
+      : 'Каталог аниме — полный список тайтлов',
     description: q
-      ? `Результаты поиска аниме по запросу «${q}». Тысячи тайтлов в HD-качестве с русской озвучкой.`
-      : genre
-      ? `Подборка аниме в жанре «${decodeURIComponent(genre)}» — лучшие тайтлы с озвучкой и субтитрами в HD.`
-      : 'Полный каталог аниме на AnimeFlux. Фильтры по году, жанрам. Тысячи тайтлов в HD.',
-    canonical: q ? '/catalog' : genre ? `/genres/${genre}` : '/catalog',
-    noindex: !!q, // страницы поиска не индексируем
+      ? `Результаты поиска аниме по запросу «${q}» на AnimeFlux. Тысячи тайтлов в HD с русской озвучкой и субтитрами.`
+      : decodedGenre
+      ? `Смотреть аниме в жанре ${decodedGenre} онлайн бесплатно в HD-качестве. Лучшие тайтлы с русской озвучкой и английскими субтитрами. Новинки, онгоинги, классика.`
+      : 'Полный каталог аниме на AnimeFlux: сортировка по году, жанрам, статусу. Тысячи сериалов, фильмов и OVA в HD с русской озвучкой. Смотрите онлайн бесплатно без рекламы.',
+    canonical: q ? '/catalog' : decodedGenre ? `/genres/${genre}` : '/catalog',
+    keywords: decodedGenre
+      ? `аниме ${decodedGenre}, ${decodedGenre} аниме онлайн, смотреть ${decodedGenre}, ${decodedGenre} с озвучкой, лучшие аниме ${decodedGenre}`
+      : 'каталог аниме, все аниме, аниме список, аниме по жанрам, аниме по годам, аниме HD',
+    noindex: !!q,
+    breadcrumbs: decodedGenre
+      ? [
+          { name: 'Главная', url: '/' },
+          { name: 'Жанры', url: '/genres' },
+          { name: decodedGenre, url: `/genres/${genre}` },
+        ]
+      : [
+          { name: 'Главная', url: '/' },
+          { name: 'Каталог', url: '/catalog' },
+        ],
   })
 
   return (

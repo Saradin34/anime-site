@@ -1,4 +1,34 @@
+# AnimeFlux — https://anime-flux.netlify.app
+# Разрешаем поисковикам индексировать публичные страницы
+
 User-agent: *
+Allow: /
+Allow: /catalog
+Allow: /top
+Allow: /genres
+Allow: /genres/
+Allow: /schedule
+Allow: /anime/
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.webp$
+Allow: /*.svg$
+
+# Приватные разделы: не тратим краулерный бюджет
+Disallow: /api/
+Disallow: /profile
+Disallow: /favorites
+Disallow: /history
+Disallow: /lists
+Disallow: /login
+Disallow: /register
+Disallow: /*?q=
+Disallow: /*?utm_
+
+# Google
+User-agent: Googlebot
 Allow: /
 Disallow: /api/
 Disallow: /profile
@@ -7,21 +37,60 @@ Disallow: /history
 Disallow: /lists
 Disallow: /login
 Disallow: /register
+Crawl-delay: 1
 
-# Поисковики России
+User-agent: Googlebot-Image
+Allow: /
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.webp$
+Allow: /*.svg$
+
+User-agent: Googlebot-Video
+Allow: /
+Allow: /anime/
+
+# Яндекс — важный для русской аудитории
 User-agent: Yandex
 Allow: /
 Disallow: /api/
+Disallow: /profile
+Disallow: /favorites
+Disallow: /history
+Disallow: /lists
+Disallow: /login
+Disallow: /register
+Crawl-delay: 1
+Clean-param: q&utm_source&utm_medium&utm_campaign&ysclid&yclid
 
 User-agent: YandexBot
 Allow: /
 
-# Google
-User-agent: Googlebot
+User-agent: YandexImages
 Allow: /
 
-User-agent: Googlebot-Image
+# Bing
+User-agent: Bingbot
 Allow: /
+Disallow: /api/
+Crawl-delay: 1
+
+# Блокируем агрессивные боты и скраперы
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
 
 Sitemap: https://anime-flux.netlify.app/sitemap.xml
-Host: https://anime-flux.netlify.app
+Host: anime-flux.netlify.app

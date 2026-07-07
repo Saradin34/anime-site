@@ -28,7 +28,7 @@ export default function AnimeCard({ anime, size = 'md', showInfo = true }: Props
       <div className="relative aspect-[2/3] overflow-hidden">
         <SmartImage
           poster={anime.poster}
-          alt={anime.name.main}
+          alt={`Постер аниме ${anime.name.main}${anime.year ? ` (${anime.year})` : ''}`}
           priority="card"
           className="w-full h-full transition-transform duration-500 group-hover:scale-110"
         />

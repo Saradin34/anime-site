@@ -81,7 +81,7 @@ export default function SearchModal({ open, onClose }: { open: boolean; onClose:
                 onClick={onClose}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-hover transition group"
               >
-                <img src={posterUrl(r.poster)} alt="" className="w-12 h-16 rounded-lg object-cover" />
+                <img src={posterUrl(r.poster)} alt={`Постер аниме ${r.name.main}`} loading="lazy" className="w-12 h-16 rounded-lg object-cover" />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate group-hover:text-neon-pink transition">{r.name.main}</div>
                   <div className="text-xs text-text-dim truncate">{r.name.english}</div>

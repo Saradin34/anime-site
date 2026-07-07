@@ -365,7 +365,7 @@ export default function ProfilePage() {
                   onClick={() => markRead(user.uid, n.id)}
                   className="flex items-center gap-3 flex-1 min-w-0"
                 >
-                  <img src={n.poster} alt="" className="w-12 h-16 rounded-lg object-cover shrink-0" />
+                  <img src={n.poster} alt={`Постер ${n.title}`} loading="lazy" className="w-12 h-16 rounded-lg object-cover shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate">{n.title}</div>
                     <div className="text-sm text-text-muted">Новая серия: {n.episode}</div>

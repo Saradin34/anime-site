@@ -52,7 +52,7 @@ export default function HeroSlider({ items }: { items: ReleaseShort[] }) {
         >
           <SmartImage
             poster={s.poster}
-            alt={s.name.main}
+            alt={`${s.name.main} — смотреть онлайн в HD`}
             priority={i === index ? 'hero' : 'card'}
             className="w-full h-full"
           />

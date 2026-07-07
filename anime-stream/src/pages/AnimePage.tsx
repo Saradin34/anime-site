@@ -218,38 +218,73 @@ export default function AnimePage() {
     })
   }
 
-  // ===== SEO: динамический title, описание, og:image и JSON-LD TVSeries =====
+  // ===== SEO: динамический title, описание, og:image и JSON-LD =====
   useSeo(anime ? {
-    title: `${anime.name.main} — смотреть онлайн`,
+    title: `${anime.name.main} — смотреть онлайн в HD${anime.year ? ` (${anime.year})` : ''}`,
     description: anime.description
-      ? `${anime.name.main}${anime.name.english ? ` (${anime.name.english})` : ''}. ${anime.description.slice(0, 200)}${anime.description.length > 200 ? '...' : ''}`
-      : `Смотрите аниме «${anime.name.main}» онлайн в HD-качестве с русской озвучкой.`,
+      ? `Смотрите аниме «${anime.name.main}»${anime.name.english ? ` (${anime.name.english})` : ''} онлайн в HD с русской озвучкой бесплатно. ${anime.description.slice(0, 160)}${anime.description.length > 160 ? '…' : ''}`
+      : `Смотрите аниме «${anime.name.main}» онлайн в HD-качестве с русской озвучкой и субтитрами. Все серии бесплатно и без рекламы на AnimeFlux.`,
     image: posterUrl(anime.poster),
     canonical: `/anime/${anime.alias}`,
-    type: 'video.tv_show',
-    meta: anime.year ? [{ property: 'video:release_date', content: String(anime.year) }] : undefined,
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': anime.type?.value === 'MOVIE' ? 'Movie' : 'TVSeries',
-      name: anime.name.main,
-      alternateName: anime.name.english || undefined,
-      description: anime.description || undefined,
-      image: posterUrl(anime.poster),
-      url: `https://anime-flux.netlify.app/anime/${anime.alias}`,
-      datePublished: anime.year ? `${anime.year}-01-01` : undefined,
-      genre: anime.genres?.map((g) => g.name),
-      numberOfEpisodes: anime.episodes_total || undefined,
-      contentRating: anime.age_rating?.label || undefined,
-      inLanguage: 'ru',
-      aggregateRating: (anime.added_in_users_favorites ?? 0) > 0 ? {
-        '@type': 'AggregateRating',
-        ratingValue: '8.5',
-        ratingCount: anime.added_in_users_favorites,
-        bestRating: '10',
-        worstRating: '1',
-      } : undefined,
-    },
-  } : { title: 'Загрузка...', noindex: true })
+    type: anime.type?.value === 'MOVIE' ? 'video.movie' : 'video.tv_show',
+    keywords: [
+      anime.name.main,
+      anime.name.english,
+      `${anime.name.main} онлайн`,
+      `${anime.name.main} смотреть`,
+      `${anime.name.main} озвучка`,
+      `${anime.name.main} все серии`,
+      ...(anime.genres?.map((g) => g.name) || []),
+      'аниме онлайн', 'смотреть аниме в HD',
+    ].filter(Boolean).join(', '),
+    meta: [
+      ...(anime.year ? [{ property: 'video:release_date', content: `${anime.year}-01-01` }] : []),
+      ...(anime.genres?.map((g) => ({ property: 'article:tag', content: g.name })) || []),
+    ],
+    breadcrumbs: [
+      { name: 'Главная', url: '/' },
+      { name: 'Каталог', url: '/catalog' },
+      { name: anime.name.main, url: `/anime/${anime.alias}` },
+    ],
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': anime.type?.value === 'MOVIE' ? 'Movie' : 'TVSeries',
+        name: anime.name.main,
+        alternateName: anime.name.english || undefined,
+        description: anime.description || undefined,
+        image: posterUrl(anime.poster),
+        url: `https://anime-flux.netlify.app/anime/${anime.alias}`,
+        datePublished: anime.year ? `${anime.year}-01-01` : undefined,
+        genre: anime.genres?.map((g) => g.name),
+        numberOfEpisodes: anime.episodes_total || undefined,
+        contentRating: anime.age_rating?.label || undefined,
+        inLanguage: 'ru',
+        countryOfOrigin: { '@type': 'Country', name: 'JP' },
+        aggregateRating: (anime.added_in_users_favorites ?? 0) > 5 ? {
+          '@type': 'AggregateRating',
+          ratingValue: '8.5',
+          ratingCount: anime.added_in_users_favorites,
+          bestRating: '10',
+          worstRating: '1',
+        } : undefined,
+      },
+      // VideoObject — Google покажет карточку с превью в результатах видео-поиска
+      ...(episodes.length > 0 && currentEpisode ? [{
+        '@context': 'https://schema.org',
+        '@type': 'VideoObject',
+        name: `${anime.name.main} — Серия ${currentEpisode.ordinal}${currentEpisode.name ? `: ${currentEpisode.name}` : ''}`,
+        description: `Смотрите онлайн серию ${currentEpisode.ordinal} аниме «${anime.name.main}» в HD с русской озвучкой.`,
+        thumbnailUrl: currentEpisode.preview ? posterUrl(currentEpisode.preview) : posterUrl(anime.poster),
+        uploadDate: currentEpisode.updated_at || (anime.year ? `${anime.year}-01-01` : new Date().toISOString()),
+        duration: currentEpisode.duration ? `PT${Math.round(currentEpisode.duration / 60)}M` : undefined,
+        contentUrl: `https://anime-flux.netlify.app/anime/${anime.alias}`,
+        embedUrl: `https://anime-flux.netlify.app/anime/${anime.alias}`,
+        inLanguage: 'ru',
+        isFamilyFriendly: !anime.age_rating?.is_adult,
+      }] : []),
+    ],
+  } : { title: 'Загрузка аниме', noindex: true })
 
   if (loading) {
     return (
@@ -273,7 +308,7 @@ export default function AnimePage() {
   return (
     <div>
       <div className="relative h-[50vh] min-h-[380px] overflow-hidden">
-        <img src={posterUrl(anime.poster)} alt="" className="absolute inset-0 w-full h-full object-cover scale-110 blur-md opacity-40" />
+        <img src={posterUrl(anime.poster)} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-md opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-bg/30" />
       </div>
 
@@ -530,7 +565,7 @@ export default function AnimePage() {
                   >
                     <div className="relative w-20 h-12 rounded-lg overflow-hidden shrink-0 bg-bg-elevated">
                       {ep.preview ? (
-                        <img src={thumbUrl(ep.preview)} alt="" className="w-full h-full object-cover" />
+                        <img src={thumbUrl(ep.preview)} alt={`Превью серии ${ep.ordinal}`} loading="lazy" className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-text-dim text-xs">{ep.ordinal}</div>
                       )}

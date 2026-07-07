@@ -77,7 +77,7 @@ export default function ListsPage() {
           {items.map((e) => (
             <div key={e.animeId} className="glass rounded-2xl p-3 flex gap-3 items-center group">
               <Link to={`/anime/${e.alias}`} className="shrink-0">
-                <img src={e.poster} alt="" className="w-16 h-22 rounded-lg object-cover" />
+                <img src={e.poster} alt={`Постер ${e.title}`} loading="lazy" className="w-16 h-22 rounded-lg object-cover" />
               </Link>
               <div className="flex-1 min-w-0">
                 <Link to={`/anime/${e.alias}`} className="block font-semibold truncate hover:text-neon-pink transition">

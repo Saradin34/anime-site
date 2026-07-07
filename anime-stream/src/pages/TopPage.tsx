@@ -8,9 +8,14 @@ import clsx from 'clsx'
 
 export default function TopPage() {
   useSeo({
-    title: 'Топ-100 лучших аниме',
-    description: 'Рейтинг лучших аниме всех времён по версии пользователей. 100 культовых тайтлов в HD-качестве с русской озвучкой.',
+    title: 'Топ-100 лучших аниме всех времён',
+    description: 'Рейтинг 100 лучших аниме по версии зрителей: культовая классика, легендарные хиты и высокорейтинговые новинки. Смотреть онлайн в HD с русской озвучкой бесплатно на AnimeFlux.',
     canonical: '/top',
+    keywords: 'топ аниме, топ 100 аниме, лучшие аниме, рейтинг аниме, культовые аниме, легендарные аниме, самое лучшее аниме, любимое аниме',
+    breadcrumbs: [
+      { name: 'Главная', url: '/' },
+      { name: 'Топ-100', url: '/top' },
+    ],
   })
   const [items, setItems] = useState<ReleaseShort[]>([])
   const [loading, setLoading] = useState(true)
@@ -61,7 +66,7 @@ export default function TopPage() {
               )}>
                 {i + 1}
               </div>
-              <img src={posterUrl(a.poster)} alt="" className="w-14 h-20 rounded-lg object-cover shrink-0" />
+              <img src={posterUrl(a.poster)} alt={`Постер аниме ${a.name.main}`} loading="lazy" className="w-14 h-20 rounded-lg object-cover shrink-0" />
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold group-hover:text-neon-pink transition truncate">{a.name.main}</h3>
                 <p className="text-xs text-text-muted truncate">{a.name.english}</p>
